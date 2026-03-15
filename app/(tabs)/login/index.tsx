@@ -4,7 +4,7 @@ import { ThemedView } from '@/components/themed-view';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Button, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Button, Platform, StyleSheet, TextInput, View } from 'react-native';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -20,16 +20,43 @@ export default function LoginScreen() {
   }
 };
 
+const showMessage = (title: string, message: string) => {
+
+  if (Platform.OS === "web") {
+    alert(title + ": " + message);
+  } else {
+    Alert.alert(title, message,[
+      {
+        text: "OK",
+        onPress: () => router.replace("/")
+      }
+    ]);
+  }
+
+};
+
 const handleLogin = async () => {
   try {
-    const res = await axios.post('http://192.168.0.5:3000/login', { email, password });
-    Alert.alert(res.data.message);
 
+    const res = await axios.post("http://192.168.0.5:3000/login", {
+      email,
+      password
+    });
+
+   // showMessage("ok!", res.data.message);
     router.replace('/');
+
   } catch (err: any) {
-    Alert.alert('Erro', err.response?.data?.message || err.message);
+
+    console.log(err.response?.data);
+
+   showMessage("Atenção", err.response?.data?.message || err.message);
+
   }
 };
+
+
+
 
   return (
     <ThemedView style={styles.container}>
