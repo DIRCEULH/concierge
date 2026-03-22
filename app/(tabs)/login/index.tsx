@@ -30,7 +30,7 @@ export default function LoginScreen() {
       await AsyncStorage.setItem('userToken', res.data.token || 'logado');
 
       // ✅ vai pra tela principal
-      router.replace('/(tabs)/start');
+      router.replace('/(tabs)');
 
     } catch (err: any) {
       console.log(err.response?.data);
@@ -46,8 +46,10 @@ export default function LoginScreen() {
     try {
       const res = await axios.post('http://192.168.0.5:3000/register', { email, password });
       Alert.alert(res.data.message);
+      showMessage('Atenção',res.data.message);
     } catch (err: any) {
-      Alert.alert('Erro', err.response?.data?.message || err.message);
+     
+      showMessage('Erro', err.response?.data?.message || err.message)
     }
   };
 
