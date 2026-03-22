@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Alert,
   Button,
-  FlatList,
   Platform,
   ScrollView,
   StyleSheet,
@@ -97,48 +96,52 @@ export default function HomeScreen() {
           obs: 'Entrega de material',
         },
       ];
-      setTimeout( ()=> { setRegistros(data) })
-} catch (error) {
-  console.error('Erro ao buscar registros:', error);
-  // showMessage('Erro ao buscar registros:', error);
-} finally {
-  setLoading(false);
-}
+      setTimeout(() => { setRegistros(data) })
+    } catch (error) {
+      console.error('Erro ao buscar registros:', error);
+      // showMessage('Erro ao buscar registros:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
 
-//const renderItem = ({ item }) => (
+  //const renderItem = ({ item }) => (
 
-const renderItem = ({ item }: { item: Registro }) => (
-  <View style={styles.row}>
-    <Text style={styles.cell}>{item.id}</Text>
-    <Text style={styles.cell}>{item.cpf_cnpj}</Text>
-    <Text style={styles.cell}>{item.nome}</Text>
-    <Text style={styles.cell}>{item.empresa}</Text>
-    <Text style={styles.cell}>{item.data_entrada}</Text>
-    <Text style={styles.cell}>{item.data_saida}</Text>
-    <Text style={styles.cell}>{item.placa}</Text>
-    <Text style={styles.cell}>{item.destino}</Text>
-    <Text style={styles.cell}>{item.atendente}</Text>
-    <Text style={styles.cell}>{item.obs}</Text>
-  </View>
-);
-
-if (loading) {
-  return (
-    <View style={styles.center}>
-      <ActivityIndicator size="large" />
-      <Text>Carregando...</Text>
+  const renderItem = ({ item }: { item: Registro }) => (
+    <View style={styles.row}>
+      <Text style={styles.cell}>{item.id}</Text>
+      <Text style={styles.cell}>{item.cpf_cnpj}</Text>
+      <Text style={styles.cell}>{item.nome}</Text>
+      <Text style={styles.cell}>{item.empresa}</Text>
+      <Text style={styles.cell}>{item.data_entrada}</Text>
+      <Text style={styles.cell}>{item.data_saida}</Text>
+      <Text style={styles.cell}>{item.placa}</Text>
+      <Text style={styles.cell}>{item.destino}</Text>
+      <Text style={styles.cell}>{item.atendente}</Text>
+      <Text style={styles.cell}>{item.obs}</Text>
     </View>
   );
-}
 
-return (
-<ScrollView horizontal>
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text>Carregando...</Text>
+      </View>
+    );
+  }
+
+  return (
+
+    <View>
+      {<View style={styles.logoutContainer}> <Button title="Logout" onPress={logout} /> </View>}
+      {/* Cabeçalho */}
+   <ScrollView horizontal showsHorizontalScrollIndicator>
   <View>
-    {<View style={styles.logoutContainer}> <Button title="Logout" onPress={logout} /> </View>}
-    {/* Cabeçalho */}
+
+    {/* HEADER */}
     <View style={styles.header}>
       <Text style={styles.headerCell}>ID</Text>
       <Text style={styles.headerCell}>CPF/CNPJ</Text>
@@ -152,15 +155,27 @@ return (
       <Text style={styles.headerCell}>OBS</Text>
     </View>
 
-    {/* Lista */}
-    <FlatList
-      data={registros}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={renderItem}
-    />
+    {/* LINHAS */}
+    {registros.map((item) => (
+      <View key={item.id} style={styles.row}>
+        <Text style={styles.cell}>{item.id}</Text>
+        <Text style={styles.cell}>{item.cpf_cnpj}</Text>
+        <Text style={styles.cell}>{item.nome}</Text>
+        <Text style={styles.cell}>{item.empresa}</Text>
+        <Text style={styles.cell}>{item.data_entrada}</Text>
+        <Text style={styles.cell}>{item.data_saida}</Text>
+        <Text style={styles.cell}>{item.placa}</Text>
+        <Text style={styles.cell}>{item.destino}</Text>
+        <Text style={styles.cell}>{item.atendente}</Text>
+        <Text style={styles.cell}>{item.obs}</Text>
+      </View>
+    ))}
 
   </View>
-</ScrollView>);
+</ScrollView>
+
+    </View>
+  );
 }
 
 
