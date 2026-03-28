@@ -1,6 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Button,
@@ -13,9 +14,7 @@ import {
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 
-
 export default function CadastroScreen() {
-
   const [form, setForm] = useState({
     cpf_cnpj: '',
     nome: '',
@@ -28,11 +27,28 @@ export default function CadastroScreen() {
     obs: '',
   });
 
-
   const router = useRouter();
+
+  // ✅ Carregar atendente do AsyncStorage
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userStorage = await AsyncStorage.getItem('user');
+        setForm(prev => ({
+          ...prev,
+          atendente: userStorage ? JSON.parse(userStorage) : '',
+        }));
+      } catch (error) {
+        console.log('Erro ao carregar user:', error);
+      }
+    };
+
+    loadUser();
+  }, []);
+
   const showMessage = (title: string, message: string) => {
-    if (Platform.OS === "web") {
-      alert(title + ": " + message);
+    if (Platform.OS === 'web') {
+      alert(title + ': ' + message);
     } else {
       Alert.alert(title, message);
     }
@@ -41,63 +57,65 @@ export default function CadastroScreen() {
   const start = async () => {
     router.replace('/(tabs)');
   };
-  const handleChange = (campo: string, valor: string) => {
-    setForm({ ...form, [campo]: valor });
+
+  // ✅ Atualizar form e salvar atendente no AsyncStorage
+  const handleChange = async (campo: string, valor: string) => {
+    setForm(prev => ({ ...prev, [campo]: valor }));
+
+    if (campo === 'atendente') {
+      try {
+        await AsyncStorage.setItem('user', JSON.stringify(valor));
+      } catch (error) {
+        console.log('Erro ao salvar user:', error);
+      }
+    }
   };
 
-  
+  const salvar = async () => {
+    try {
+      if (!form.nome) {
+        showMessage('Erro', 'Nome é obrigatório');
+        return;
+      }
 
+      const response = await axios.post('http://192.168.0.5:3000/visitors', form);
 
-const salvar = async () => {
-  try {
-    if (!form.nome) {
-      showMessage('Erro', 'Nome é obrigatório');
-      return;
+      showMessage('Sucesso', 'Registro salvo! ' + JSON.stringify(response.data));
+
+      // limpar formulário
+      setForm({
+        cpf_cnpj: '',
+        nome: '',
+        empresa: '',
+        data_entrada: '',
+        data_saida: '',
+        placa: '',
+        destino: '',
+        atendente: '',
+        obs: '',
+      });
+
+    } catch (error: any) {
+      console.error('Erro ao salvar:', error);
+
+      if (error.response) {
+        showMessage('Erro API', JSON.stringify(error.response.data));
+      } else if (error.request) {
+        showMessage('Erro', 'Servidor não respondeu');
+      } else {
+        showMessage('Erro', error.message);
+      }
     }
-
-    const response = await axios.post(
-      'http://192.168.0.5:3000/visitors',
-      form
-    );
-
-
-    showMessage('Sucesso', 'Registro salvo! ' + JSON.stringify(response.data));
-
-    // limpar formulário
-    setForm({
-      cpf_cnpj: '',
-      nome: '',
-      empresa: '',
-      data_entrada: '',
-      data_saida: '',
-      placa: '',
-      destino: '',
-      atendente: '',
-      obs: '',
-    });
-
-  } catch (error: any) {
-    console.error('Erro ao salvar:', error);
-
-    if (error.response) {
-      // erro vindo da API
-      showMessage('Erro API', JSON.stringify(error.response.data));
-    } else if (error.request) {
-      // não conseguiu conectar
-      showMessage('Erro', 'Servidor não respondeu');
-    } else {
-      showMessage('Erro', error.message);
-    }
-  }
-};
+  };
 
   return (
     <ScrollView style={styles.container}>
-
       <Text style={styles.title}>Cadastro</Text>
+
       <TextInput placeholder="CPF/CNPJ" value={form.cpf_cnpj} onChangeText={(v) => handleChange('cpf_cnpj', v)} style={styles.input} />
       <TextInput placeholder="Nome" value={form.nome} onChangeText={(v) => handleChange('nome', v)} style={styles.input} />
       <TextInput placeholder="Empresa" value={form.empresa} onChangeText={(v) => handleChange('empresa', v)} style={styles.input} />
+
       <MaskedTextInput
         mask="99/99/9999 99:99"
         placeholder="Data Entrada (DD/MM/YYYY HH:mm)"
@@ -115,9 +133,13 @@ const salvar = async () => {
         onChangeText={(text) => handleChange('data_saida', text)}
         style={styles.input}
       />
+
       <TextInput placeholder="Placa" value={form.placa} onChangeText={(v) => handleChange('placa', v)} style={styles.input} />
       <TextInput placeholder="Destino" value={form.destino} onChangeText={(v) => handleChange('destino', v)} style={styles.input} />
-      <TextInput placeholder="Atendente" value={form.atendente} onChangeText={(v) => handleChange('atendente', v)} style={styles.input} />
+
+      {/* ✅ Corrigido: agora pega do form.atendente */}
+      <TextInput placeholder="Atendente" value={form.atendente} onChangeText={(v) => handleChange('atendente', v)}  style={styles.input} editable={false}/>
+
       <TextInput placeholder="Observações" value={form.obs} onChangeText={(v) => handleChange('obs', v)} style={styles.input} multiline />
 
       <View style={styles.buttonContainer}>
@@ -128,9 +150,7 @@ const salvar = async () => {
         <View style={styles.button}>
           <Button title="Voltar" onPress={start} />
         </View>
-
       </View>
-
     </ScrollView>
   );
 }
@@ -160,8 +180,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   buttonContainer: {
-    flexDirection: 'row', // 🔥 lado a lado
-    justifyContent: 'space-between', // ou 'flex-start'
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 0,
   },
 });

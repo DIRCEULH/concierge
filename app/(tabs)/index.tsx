@@ -38,6 +38,8 @@ export default function HomeScreen() {
 
   const logout = async () => {
     await AsyncStorage.removeItem('userToken');
+    await AsyncStorage.removeItem('user');
+
     router.replace('/(tabs)/login');
   };
 
@@ -200,7 +202,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10 },
 
-  logoutContainer: {  marginHorizontal: 1,marginBottom: 5 },
+  logoutContainer: { marginHorizontal: 1, marginBottom: 5 },
 
   buttonContainer: {
     flexDirection: 'row', // 🔥 lado a lado

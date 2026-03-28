@@ -9,6 +9,7 @@ import { Alert, Button, Platform, StyleSheet, TextInput, View } from 'react-nati
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
 
   const showMessage = (title: string, message: string) => {
@@ -19,15 +20,24 @@ export default function LoginScreen() {
     }
   };
 
+  
+
   const handleLogin = async () => {
     try {
       const res = await axios.post("http://192.168.0.5:3000/login", {
+        user,
         email,
         password
       });
 
       // ✅ salva login
-      await AsyncStorage.setItem('userToken', res.data.token || 'logado');
+
+      await AsyncStorage.setItem('userToken', res.data.token);
+      await AsyncStorage.setItem(
+        'user',
+        JSON.stringify(res.data.result[0].user)
+      );
+
 
       // ✅ vai pra tela principal
       router.replace('/(tabs)');
@@ -44,11 +54,11 @@ export default function LoginScreen() {
 
   const handleRegister = async () => {
     try {
-      const res = await axios.post('http://192.168.0.5:3000/register', { email, password });
+      const res = await axios.post('http://192.168.0.5:3000/register', { user, email, password });
       Alert.alert(res.data.message);
-      showMessage('Atenção',res.data.message);
+      showMessage('Atenção', res.data.message);
     } catch (err: any) {
-     
+
       showMessage('Erro', err.response?.data?.message || err.message)
     }
   };
@@ -56,6 +66,14 @@ export default function LoginScreen() {
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title">Login</ThemedText>
+
+      <TextInput
+        placeholder="Usuário"
+        value={user}
+        onChangeText={setUser}
+        style={styles.input}
+        autoCapitalize="none"
+      />
 
       <TextInput
         placeholder="Email"
@@ -82,5 +100,5 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, gap: 12 },
-  input: { borderWidth: 1, borderColor: '#888', borderRadius: 6, padding: 10 },
+  input: { borderWidth: 1, borderColor: '#888', borderRadius: 6, padding: 10,backgroundColor: '#fff', },
 });
