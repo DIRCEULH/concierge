@@ -32,8 +32,7 @@ export default function LoginScreen() {
 
       // ✅ salva login
 
-      await AsyncStorage.setItem('userToken', res.data.token);
-      await AsyncStorage.setItem(
+        await AsyncStorage.setItem(
         'user',
         JSON.stringify(res.data.result[0].user)
       );

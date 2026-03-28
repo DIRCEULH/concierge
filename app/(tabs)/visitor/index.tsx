@@ -17,6 +17,22 @@ import { MaskedTextInput } from 'react-native-mask-text';
 
 
 export default function CadastroScreen() {
+
+
+
+    useEffect(() => {
+    const checkLogin = async () => {
+      const user = await AsyncStorage.getItem('user');
+
+      if (!user) {
+        router.replace('/login'); 
+      }
+    };
+
+    checkLogin();
+  }, []);
+
+
   const [form, setForm] = useState({
     cpf_cnpj: '',
     nome: '',
