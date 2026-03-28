@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "portaria",
-    "slug": "portaria",
+    "name": "concierge",
+    "slug": "concierge",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "portaria",
+    "scheme": "concierge",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "dirceulh.concierge",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,6 +45,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e750e2ac-1d24-4521-9303-874aa2a87780"
+      }
     }
   }
 }
