@@ -30,10 +30,14 @@ export default function CadastroScreen() {
   const router = useRouter();
 
   // ✅ Carregar atendente do AsyncStorage
+
+  const [user, setUser] = useState('');
   useEffect(() => {
     const loadUser = async () => {
       try {
         const userStorage = await AsyncStorage.getItem('user');
+        const userValue = userStorage ? JSON.parse(userStorage) : '';
+         setUser(userValue);
         setForm(prev => ({
           ...prev,
           atendente: userStorage ? JSON.parse(userStorage) : '',
@@ -91,7 +95,7 @@ export default function CadastroScreen() {
         data_saida: '',
         placa: '',
         destino: '',
-        atendente: '',
+        atendente: user,
         obs: '',
       });
 
@@ -138,8 +142,9 @@ export default function CadastroScreen() {
       <TextInput placeholder="Destino" value={form.destino} onChangeText={(v) => handleChange('destino', v)} style={styles.input} />
 
       {/* ✅ Corrigido: agora pega do form.atendente */}
-      <TextInput placeholder="Atendente" value={form.atendente} onChangeText={(v) => handleChange('atendente', v)}  style={styles.input} editable={false}/>
-
+      <View style={[styles.input, styles.inputDisabled]}>
+        <Text selectable>{form.atendente}</Text>
+      </View>
       <TextInput placeholder="Observações" value={form.obs} onChangeText={(v) => handleChange('obs', v)} style={styles.input} multiline />
 
       <View style={styles.buttonContainer}>
@@ -183,5 +188,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 0,
+  },
+  inputDisabled: {
+    backgroundColor: '#eee', // fundo cinza claro para indicar que está desabilitado
+    color: '#666',           // texto com cor mais clara
+    opacity: 0.7,            // leve opacidade para efeito visual
   },
 });

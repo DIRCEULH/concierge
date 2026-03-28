@@ -75,45 +75,8 @@ export default function HomeScreen() {
 
   const fetchRegistros = async () => {
     try {
-      // const response = await fetch('https://sua-api.com/registros');
-      const data = [
-        {
-          id: 1,
-          cpf_cnpj: '111.111.111-11',
-          nome: 'Carlos Pereira',
-          empresa: 'Empresa Alpha',
-          data_entrada: '2026-03-20',
-          data_saida: '2026-03-20',
-          placa: 'AAA-1111',
-          destino: 'Curitiba',
-          atendente: 'Juliana',
-          obs: 'Visita técnica',
-        },
-        {
-          id: 2,
-          cpf_cnpj: '222.222.222-22',
-          nome: 'Fernanda Lima',
-          empresa: 'Empresa Beta',
-          data_entrada: '2026-03-21',
-          data_saida: '2026-03-21',
-          placa: 'BBB-2222',
-          destino: 'Florianópolis',
-          atendente: 'Roberto',
-          obs: 'Reunião',
-        },
-        {
-          id: 3,
-          cpf_cnpj: '333.333.333-33',
-          nome: 'Marcos Souza',
-          empresa: 'Empresa Gamma',
-          data_entrada: '2026-03-22',
-          data_saida: '2026-03-22',
-          placa: 'CCC-3333',
-          destino: 'Porto Alegre',
-          atendente: 'Ana',
-          obs: 'Entrega de material',
-        },
-      ];
+       const response = await fetch('http://192.168.0.5:3000/visitantes');
+       const data = await response.json();
       setTimeout(() => {
 
         setRegistros(data);
