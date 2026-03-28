@@ -78,6 +78,9 @@ export default function HomeScreen() {
        const response = await fetch('http://192.168.0.5:3000/visitantes');
        const data = await response.json();
       setTimeout(() => {
+        
+
+        console.log('Registros',data)
 
         setRegistros(data);
         setRegistrosFiltrados(data); // 🔥 importante
@@ -106,7 +109,7 @@ export default function HomeScreen() {
 
   return (
 
-    <View>
+    <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <View style={styles.button}>
           <Button title="Logout" onPress={logout} />
@@ -163,7 +166,7 @@ export default function HomeScreen() {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10 },
+  container: { flex: 1, padding: 10 , marginTop:25, backgroundColor:'#000'},
 
   logoutContainer: { marginHorizontal: 1, marginBottom: 5 },
 

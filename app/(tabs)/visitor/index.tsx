@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 
+
+
 export default function CadastroScreen() {
   const [form, setForm] = useState({
     cpf_cnpj: '',
@@ -163,7 +165,9 @@ export default function CadastroScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 20,
+    marginTop:25,
+    backgroundColor:'#000'
   },
 
   title: {
@@ -175,14 +179,14 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    marginBottom: 10,
+    marginBottom: 3,
     padding: 10,
     backgroundColor: '#fff',
     borderRadius: 5,
   },
 
   button: {
-    marginTop: 10,
+    marginTop: 5,
   },
   buttonContainer: {
     flexDirection: 'row',
