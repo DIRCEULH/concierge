@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -16,6 +17,7 @@ import {
   View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 type Registro = {
   id: number;
@@ -44,6 +46,8 @@ export default function HomeScreen() {
   const [filtroData, setFiltroData] = useState(`${dia}/${mes}/${ano}`);
   const [registrosFiltrados, setRegistrosFiltrados] = useState<Registro[]>([]);
 
+  const [filtroLocal, setFiltroLocal] = useState('');
+
   const router = useRouter();
 
   // Modal e picker
@@ -52,6 +56,26 @@ export default function HomeScreen() {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [campoData, setCampoData] = useState<'data_entrada' | 'data_saida'>('data_saida');
+
+  // Carregar último local selecionado do AsyncStorage
+  useEffect(() => {
+    const loadLocal = async () => {
+      try {
+        const savedLocal = await AsyncStorage.getItem('filtroLocal');
+        if (savedLocal) { 
+          setFiltroLocal(savedLocal);
+          fetchRegistros(filtroData, savedLocal);
+
+         }
+
+
+      } catch (error) {
+        console.log('Erro ao carregar local:', error);
+      }
+    };
+    loadLocal();
+  }, []);
+
 
   // Verifica login
   useEffect(() => {
@@ -64,7 +88,7 @@ export default function HomeScreen() {
 
   // Busca registros
   useEffect(() => {
-    fetchRegistros(filtroData);
+    fetchRegistros(filtroData, filtroLocal);
   }, []);
 
   // Filtra registros por nome
@@ -74,6 +98,17 @@ export default function HomeScreen() {
     );
     setRegistrosFiltrados(filtrados);
   }, [filtroNome, registros]);
+
+
+  // Salvar local selecionado no AsyncStorage
+  const handleLocalChange = async (valor: string) => {
+    setFiltroLocal(valor);
+    try {
+      await AsyncStorage.setItem('filtroLocal', valor);
+    } catch (error) {
+      console.log('Erro ao salvar local:', error);
+    }
+  };
 
   const logout = async () => {
     await AsyncStorage.removeItem('user');
@@ -88,21 +123,29 @@ export default function HomeScreen() {
     Platform.OS === 'web' ? alert(`${title}: ${message}`) : Alert.alert(title, message);
   };
 
-  const fetchRegistros = async (dataEntrada: string) => {
+  const fetchRegistros = async (dataEntrada: string, local: string) => {
+
+    console.log('Dirceu', dataEntrada,local)
     setLoading(true);
     try {
-      // Convertendo para formato MySQL: YYYY-MM-DD
+      // Convertendo data para formato MySQL: YYYY-MM-DD
       const partes = dataEntrada.split(' ')[0].split('/');
       const dataMySQL = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
+      // Monta URL com data e local
+      let url = `http://192.168.0.5:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
+      if (local) {
+        url += `&local=${encodeURIComponent(local)}`;
+      }
 
-      const response = await fetch(`http://192.168.0.5:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`);
+      const response = await fetch(url);
       const data = await response.json();
 
-      setRegistros(data);
-      setRegistrosFiltrados(data);
+      const lista = Array.isArray(data) ? data : [];
+      setRegistros(lista);
+      setRegistrosFiltrados(lista);
     } catch (error) {
-      console.error('Erro ao buscar registros por data:', error);
+      console.error('Erro ao buscar registros por data e local:', error);
       showMessage('Erro', 'Não foi possível buscar os registros.');
     } finally {
       setLoading(false);
@@ -183,6 +226,26 @@ export default function HomeScreen() {
 
 
       <View style={{ flexDirection: 'row', marginBottom: 10, alignItems: 'center' }}>
+
+
+        <Picker
+          selectedValue={filtroLocal}
+          onValueChange={handleLocalChange}
+          style={[styles.input]}
+        >
+          <Picker.Item label="Selecione o local..." value="" />
+          <Picker.Item label="MATRIZ" value="MATRIZ" />
+          <Picker.Item label="CD-1" value="CD-1" />
+          <Picker.Item label="CD-2" value="CD-2" />
+          <Picker.Item label="CD-3" value="CD-3" />
+          <Picker.Item label="CD-4" value="CD-4" />
+          <Picker.Item label="FILIAL-1" value="FILIAL-1" />
+          <Picker.Item label="FILIAL-2" value="FILIAL-2" />
+          <Picker.Item label="FILIAL-3" value="FILIAL-3" />
+          <Picker.Item label="FILIAL-4" value="FILIAL-4" />
+        </Picker>
+
+
         {/* Filtro por nome */}
         <TextInput
           placeholder="Filtrar por nome..."
@@ -199,7 +262,7 @@ export default function HomeScreen() {
 
         {/* Filtro por data */}
         <MaskedTextInput
-          mask="99/99/9999 99:99"
+          mask="99/99/9999"
           placeholder="Data Entrada (DD/MM/YYYY)"
           keyboardType="numeric"
           value={filtroData}
@@ -217,7 +280,7 @@ export default function HomeScreen() {
         {/* Botão buscar */}
         <TouchableOpacity
           onPress={() => {
-            fetchRegistros(filtroData);
+            fetchRegistros(filtroData, filtroLocal);
           }}
           style={{
             backgroundColor: '#007bff',
@@ -237,46 +300,54 @@ export default function HomeScreen() {
             <View style={{ flex: 1 }}>
               {/* Header */}
               <View style={styles.header}>
-                <Text style={styles.headerCell}>ID</Text>
-                <Text style={styles.headerCell}>CPF/CNPJ</Text>
-                <Text style={styles.headerCell}>NOME</Text>
-                <Text style={styles.headerCell}>EMPRESA</Text>
-                <Text style={styles.headerCell}>ENTRADA</Text>
-                <Text style={styles.headerCell}>SAÍDA</Text>
-                <Text style={styles.headerCell}>PLACA</Text>
-                <Text style={styles.headerCell}>DESTINO</Text>
-                <Text style={styles.headerCell}>ATENDENTE</Text>
-                <Text style={styles.headerCell}>OBS</Text>
+                <Text style={[styles.headerCell, { width: 30 }]}>ID</Text>
+                <Text style={[styles.headerCell, { width: 100 }]}>CPF/CNPJ</Text>
+                <Text style={[styles.headerCell, { width: 250 }]}>NOME</Text>
+                <Text style={[styles.headerCell, { width: 100 }]}>EMPRESA</Text>
+                <Text style={[styles.headerCell, { width: 150 }]}>ENTRADA</Text>
+                <Text style={[styles.headerCell, { width: 150 }]}>SAÍDA</Text>
+                <Text style={[styles.headerCell, { width: 100 }]}>PLACA</Text>
+                <Text style={[styles.headerCell, { width: 100 }]}>DESTINO</Text>
+                <Text style={[styles.headerCell, { width: 150 }]}>ATENDENTE</Text>
+                <Text style={[styles.headerCell, { width: 100 }]}>OBSERVAÇÂO</Text>
               </View>
 
               {/* Linhas */}
-              {registrosFiltrados.map((item) => (
+              {registrosFiltrados && registrosFiltrados.length > 0 ? (registrosFiltrados.map((item) => (
                 <View key={item.id} style={styles.row}>
-                  <Text style={styles.cell}>{item.id}</Text>
-                  <Text style={styles.cell}>{item.cpf_cnpj}</Text>
-                  <Text style={styles.cell}>{item.nome}</Text>
-                  <Text style={styles.cell}>{item.empresa}</Text>
+                  <Text style={[styles.cell, { width: 30 }]}>{item.id}</Text>
+                  <Text style={[styles.cell, { width: 100 }]}>{item.cpf_cnpj}</Text>
+                  <Text style={[styles.cell, { width: 250 }]}>{item.nome}</Text>
+                  <Text style={[styles.cell, { width: 100 }]}>{item.empresa}</Text>
 
                   {/* Data Entrada */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_entrada')}>
-                    <Text style={[styles.cell, { color: item.data_entrada === '00/00/0000 00:00' ? 'red' : '#fff' }]}>
+                    <Text style={[styles.cell, { color: item.data_entrada === '00/00/0000 00:00' ? 'red' : '#fff' }, { width: 150 }]}>
                       {item.data_entrada || '—'}
                     </Text>
                   </TouchableOpacity>
 
                   {/* Data Saída */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_saida')}>
-                    <Text style={[styles.cell, { color: item.data_saida === '00/00/0000 00:00' ? 'red' : '#fff' }]}>
+                    <Text style={[styles.cell, { color: item.data_saida === '00/00/0000 00:00' ? 'red' : '#fff' }, { width: 150 }]}>
                       {item.data_saida || '—'}
                     </Text>
                   </TouchableOpacity>
 
-                  <Text style={styles.cell}>{item.placa}</Text>
-                  <Text style={styles.cell}>{item.destino}</Text>
-                  <Text style={styles.cell}>{item.atendente}</Text>
-                  <Text style={styles.cell}>{item.obs}</Text>
+                  <Text style={[styles.cell, { width: 100 }]}>{item.placa}</Text>
+                  <Text style={[styles.cell, { width: 100 }]}>{item.destino}</Text>
+                  <Text style={[styles.cell, { width: 100 }]}>{item.atendente}</Text>
+                  <TouchableOpacity
+                    style={[styles.buttonIcon]}
+                    onPress={() => alert(item.obs || 'Sem observação')}
+                  >
+
+                    <Text style={{ color: '#fff', fontSize: 12 }}><Icon name="sticky-note" size={14} color="#fff" style={{ marginRight: 4 }} /></Text>
+                  </TouchableOpacity>
                 </View>
-              ))}
+              ))) : (
+                <Text>Nenhum registro encontrado</Text>
+              )}
             </View>
           </ScrollView>
         </ScrollView>
@@ -316,13 +387,39 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10, marginTop: 25, backgroundColor: '#000' },
+  container: { flex: 1, padding: 10, marginTop: 40, backgroundColor: '#000' },
   logoutContainer: { marginHorizontal: 1, marginBottom: 5 },
   buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
   button: { flex: 1, marginHorizontal: 1 },
+  buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
   header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
   headerCell: { width: 120, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 5 },
   row: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#ccc', paddingVertical: 5 },
   cell: { width: 120, fontSize: 12, paddingHorizontal: 5, borderRightWidth: 1, color: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  tooltip: {
+    position: 'absolute',
+    top: 30,
+    left: 0,
+    backgroundColor: '#222',
+    padding: 8,
+    borderRadius: 5,
+    maxWidth: 400,
+    zIndex: 999,
+    shadowColor: '#000',
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  tooltipText: { color: '#fff', fontSize: 12 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginTop: 0,
+    padding: 8,
+    backgroundColor: '#fff',
+    borderRadius: 1,
+  },
+
+
 });
