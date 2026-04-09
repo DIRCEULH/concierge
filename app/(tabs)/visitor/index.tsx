@@ -4,14 +4,14 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  Button,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
+    Alert,
+    Button,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 
@@ -116,7 +116,7 @@ export default function CadastroScreen() {
       }
 
 
-      const response = await axios.post('http://192.168.0.5:3000/visitors', form);
+      const response = await axios.post('http://192.168.0.12:3000/visitors', form);
 
       showMessage('Sucesso', 'Registro salvo! ' + JSON.stringify(response.data));
 

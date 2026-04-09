@@ -20,19 +20,35 @@ export default function LoginScreen() {
     }
   };
 
-  
-
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://192.168.0.5:3000/login", {
+      console.log('Dirceu', user, email, password)
+
+      switch (true) {
+        case !user:
+          return showMessage("Atenção", "Usuário Obrigatório!")
+
+
+        case !email:
+          return showMessage("Atenção", "Email Obrigatório!");
+
+
+        case !password:
+          return showMessage("Atenção", "Password Obrigatório!");
+
+
+        default:
+
+      }
+
+      const res = await axios.post("http://192.168.0.12:3000/login", {
         user,
         email,
         password
       });
 
-      // ✅ salva login
 
-        await AsyncStorage.setItem(
+      await AsyncStorage.setItem(
         'user',
         JSON.stringify(res.data.result[0].user)
       );
@@ -53,7 +69,7 @@ export default function LoginScreen() {
 
   const handleRegister = async () => {
     try {
-      const res = await axios.post('http://192.168.0.5:3000/register', { user, email, password });
+      const res = await axios.post('http://192.168.0.12:3000/register', { user, email, password });
       Alert.alert(res.data.message);
       showMessage('Atenção', res.data.message);
     } catch (err: any) {
@@ -99,5 +115,5 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, gap: 12 },
-  input: { borderWidth: 1, borderColor: '#888', borderRadius: 6, padding: 10,backgroundColor: '#fff', },
+  input: { borderWidth: 1, borderColor: '#888', borderRadius: 6, padding: 10, backgroundColor: '#fff', },
 });

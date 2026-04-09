@@ -4,17 +4,17 @@ import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Button,
-  Modal,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Button,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -133,7 +133,7 @@ export default function HomeScreen() {
       const dataMySQL = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
       // Monta URL com data e local
-      let url = `http://192.168.0.5:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
+      let url = `http://192.168.0.12:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
       if (local) {
         url += `&local=${encodeURIComponent(local)}`;
       }
@@ -176,7 +176,7 @@ export default function HomeScreen() {
     const novaDataString = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
 
     try {
-      await fetch(`http://192.168.0.5:3000/visitantes/${selectedRegistro.id}`, {
+      await fetch(`http://192.168.0.12:3000/visitantes/${selectedRegistro.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [campoData]: novaDataString }),
