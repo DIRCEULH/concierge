@@ -4,14 +4,14 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Button,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View
+  Alert,
+  Button,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 
@@ -40,7 +40,28 @@ export default function CadastroScreen() {
     atendente: '',
     obs: '',
     local: '', // ✅ Novo campo local
-  });
+  })
+
+  const formatCpfCnpj = (value:String) => {
+    let v = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+    // CPF (só números)
+    if (/^\d+$/.test(v) && v.length <= 11) {
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      return v;
+    }
+
+    // CNPJ alfanumérico
+    v = v.replace(/^(.{2})(.{0,3})/, '$1.$2');
+    v = v.replace(/^(.{6})(.{0,3})/, '$1.$2');
+    v = v.replace(/^(.{10})(.{0,4})/, '$1/$2');
+    v = v.replace(/^(.{15})(.{0,2})/, '$1-$2');
+
+    return v;
+  };
+
 
   const [user, setUser] = useState('');
   useEffect(() => {
@@ -151,11 +172,14 @@ export default function CadastroScreen() {
       <Text style={styles.title}>Cadastro</Text>
 
       <TextInput
-        placeholder="CPF/CNPJ"
+        placeholder="CPF ou CNPJ"
         value={form.cpf_cnpj}
-        onChangeText={(v) => handleChange('cpf_cnpj', v)}
+        onChangeText={(v) => { handleChange('cpf_cnpj', formatCpfCnpj(v)) }}
+        autoCapitalize="characters"
+        maxLength={18}
         style={styles.input}
       />
+
       <TextInput
         placeholder="Nome"
         value={form.nome}
@@ -210,7 +234,7 @@ export default function CadastroScreen() {
         <Picker
           selectedValue={form.local}
           onValueChange={(itemValue) => handleChange('local', itemValue)}
-           style={[styles.input]}
+          style={[styles.input]}
         >
           <Picker.Item label="Selecione o local..." value="" />
           <Picker.Item label="MATRIZ" value="MATRIZ" />

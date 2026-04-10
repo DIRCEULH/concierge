@@ -18,11 +18,15 @@ export default function LoginScreen() {
     } else {
       Alert.alert(title, message);
     }
-  };
+  }
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
 
   const handleLogin = async () => {
     try {
-      console.log('Dirceu', user, email, password)
+
 
       switch (true) {
         case !user:
@@ -69,6 +73,27 @@ export default function LoginScreen() {
 
   const handleRegister = async () => {
     try {
+
+      switch (true) {
+        case !user:
+          return showMessage("Atenção", "Usuário Obrigatório!")
+
+
+        case !email:
+          return showMessage("Atenção", "Email Obrigatório!");
+
+        case !isValidEmail(email):
+          return showMessage("Atenção", "Email inválido!");
+
+
+        case !password:
+          return showMessage("Atenção", "Password Obrigatório!");
+
+
+        default:
+
+      }
+
       const res = await axios.post('http://192.168.0.12:3000/register', { user, email, password });
       Alert.alert(res.data.message);
       showMessage('Atenção', res.data.message);
@@ -96,6 +121,7 @@ export default function LoginScreen() {
         onChangeText={setEmail}
         style={styles.input}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
 
       <TextInput
