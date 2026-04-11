@@ -97,7 +97,7 @@ export default function CadastroScreen() {
 
     try {
       const response = await axios.get(
-        `http://192.168.0.12:3000/visitantes?search=${clean}`
+        `http://192.168.0.12:3000/buscaVisitantes?search=${clean}`
       );
 
       const data = response.data || [];
