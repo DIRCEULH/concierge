@@ -39,45 +39,99 @@ export default function CadastroScreen() {
     destino: '',
     atendente: '',
     obs: '',
-    local: '', // ✅ Novo campo local
-  })
+    local: '',
+  });
 
-  const formatCpfCnpj = (value:String) => {
+  type Visitante = {
+    cpf_cnpj: string;
+    nome: string;
+    empresa: string;
+    placa?: string;
+  };
+
+  const [busca, setBusca] = useState('');
+  const [resultados, setResultados] = useState<Visitante[]>([]);
+
+    const start = async () => {
+    router.replace('/(tabs)');
+  };
+
+
+  const formatCpfCnpj = (value: string) => {
     let v = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 
-    // CPF (só números)
-    if (/^\d+$/.test(v) && v.length <= 11) {
-      v = v.replace(/(\d{3})(\d)/, '$1.$2');
-      v = v.replace(/(\d{3})(\d)/, '$1.$2');
-      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    // 🔥 LIMITE
+    if (/^\d+$/.test(v)) {
+      v = v.slice(0, 11); // CPF
+    } else {
+      v = v.slice(0, 14); // CNPJ alfanumérico
+    }
+
+    // CPF
+    if (/^\d+$/.test(v)) {
+      v = v
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
       return v;
     }
 
     // CNPJ alfanumérico
-    v = v.replace(/^(.{2})(.{0,3})/, '$1.$2');
-    v = v.replace(/^(.{6})(.{0,3})/, '$1.$2');
-    v = v.replace(/^(.{10})(.{0,4})/, '$1/$2');
-    v = v.replace(/^(.{15})(.{0,2})/, '$1-$2');
+    v = v
+      .replace(/^(.{2})(.{0,3})/, '$1.$2')
+      .replace(/^(.{6})(.{0,3})/, '$1.$2')
+      .replace(/^(.{10})(.{0,4})/, '$1/$2')
+      .replace(/^(.{15})(.{0,2})/, '$1-$2');
 
     return v;
   };
 
+  const buscarVisitantes = async (texto: string) => {
+    const clean = texto.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+    if (clean.length < 3) {
+      setResultados([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://192.168.0.12:3000/visitantes?search=${clean}`
+      );
+
+      const data = response.data || [];
+
+      // 🔥 FILTRO MAIS RIGOROSO
+      const filtrados = data.filter(item =>
+        item.cpf_cnpj
+          ?.replace(/[^a-zA-Z0-9]/g, '')
+          .toUpperCase()
+          .includes(clean)
+      );
+
+      setResultados(filtrados);
+    } catch (error) {
+      console.log('Erro busca:', error);
+      setResultados([]);
+    }
+  };
 
   const [user, setUser] = useState('');
+
   useEffect(() => {
     const loadUser = async () => {
-      try {
-        const userStorage = await AsyncStorage.getItem('user');
-        const userValue = userStorage ? JSON.parse(userStorage) : '';
-        setUser(userValue);
-        setForm(prev => ({
-          ...prev,
-          atendente: userValue,
-        }));
-      } catch (error) {
-        console.log('Erro ao carregar user:', error);
-      }
+      const userStorage = await AsyncStorage.getItem('user');
+      const userValue = userStorage ? JSON.parse(userStorage) : '';
+
+      setUser(userValue);
+
+      setForm(prev => ({
+        ...prev,
+        atendente: userValue,
+      }));
     };
+
     loadUser();
   }, []);
 
@@ -89,59 +143,23 @@ export default function CadastroScreen() {
     }
   };
 
-  const start = async () => {
-    router.replace('/(tabs)');
-  };
-
-  const handleChange = async (campo: string, valor: string) => {
+  const handleChange = (campo: string, valor: string) => {
     setForm(prev => ({ ...prev, [campo]: valor }));
-    if (campo === 'atendente') {
-      try {
-        await AsyncStorage.setItem('user', JSON.stringify(valor));
-      } catch (error) {
-        console.log('Erro ao salvar user:', error);
-      }
-    }
   };
 
   const salvar = async () => {
     try {
-      if (!form.cpf_cnpj) {
-        showMessage('Erro', 'CNPJ é obrigatório');
-        return;
-      }
-      if (!form.nome) {
-        showMessage('Erro', 'Nome é obrigatório');
-        return;
-      }
-      if (!form.empresa) {
-        showMessage('Erro', 'Empresa é obrigatório');
-        return;
-      }
+      if (!form.cpf_cnpj) return showMessage('Erro', 'CPF/CNPJ obrigatório');
+      if (!form.nome) return showMessage('Erro', 'Nome obrigatório');
+      if (!form.empresa) return showMessage('Erro', 'Empresa obrigatório');
 
-      if (!form.destino) {
-        showMessage('Erro', 'Destino é obrigatório');
-        return;
-      }
-      if (!form.local) {
-        showMessage('Erro', 'local é obrigatório');
-        return;
-      }
-      if (!form.data_entrada) {
-        showMessage('Erro', 'Data Entrada é obrigatório (00/00/0000 00:00)');
-        return;
-      }
-      if (!form.data_saida) {
-        showMessage('Erro', 'Data Saída é obrigatório! (00/00/0000 00:00)');
-        return;
-      }
+      const response = await axios.post(
+        'http://192.168.0.12:3000/visitors',
+        form
+      );
 
+      showMessage('Sucesso', 'Registro salvo!');
 
-      const response = await axios.post('http://192.168.0.12:3000/visitors', form);
-
-      showMessage('Sucesso', 'Registro salvo! ' + JSON.stringify(response.data));
-
-      // limpar formulário
       setForm({
         cpf_cnpj: '',
         nome: '',
@@ -152,18 +170,14 @@ export default function CadastroScreen() {
         destino: '',
         atendente: user,
         obs: '',
-        local: '', // resetar campo local
+        local: '',
       });
 
+      setBusca('');
+      setResultados([]);
+
     } catch (error: any) {
-      console.error('Erro ao salvar:', error);
-      if (error.response) {
-        showMessage('Erro API', JSON.stringify(error.response.data));
-      } else if (error.request) {
-        showMessage('Erro', 'Servidor não respondeu');
-      } else {
-        showMessage('Erro', error.message);
-      }
+      showMessage('Erro', error.message);
     }
   };
 
@@ -171,67 +185,95 @@ export default function CadastroScreen() {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Cadastro</Text>
 
-      <TextInput
-        placeholder="CPF ou CNPJ"
-        value={form.cpf_cnpj}
-        onChangeText={(v) => { handleChange('cpf_cnpj', formatCpfCnpj(v)) }}
-        autoCapitalize="characters"
-        maxLength={18}
-        style={styles.input}
-      />
+      {/* 🔥 INPUT INTELIGENTE */}
+      <View>
+        <TextInput
+          placeholder="CPF ou CNPJ"
+          value={busca}
+          onChangeText={(text) => {
+            const formatted = formatCpfCnpj(text);
 
-      <TextInput
-        placeholder="Nome"
-        value={form.nome}
-        onChangeText={(v) => handleChange('nome', v)}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Empresa"
-        value={form.empresa}
-        onChangeText={(v) => handleChange('empresa', v)}
-        style={styles.input}
-      />
+            setBusca(formatted);
+            handleChange('cpf_cnpj', formatted);
 
-      <MaskedTextInput
-        mask="99/99/9999 99:99"
-        placeholder="Data Entrada (DD/MM/YYYY HH:mm)"
-        keyboardType="numeric"
-        value={form.data_entrada}
-        onChangeText={(text) => handleChange('data_entrada', text)}
-        style={styles.input}
-      />
+            // 🔥 busca SEM máscara
+            const clean = text.replace(/[^a-zA-Z0-9]/g, '');
 
-      <MaskedTextInput
-        mask="99/99/9999 99:99"
-        placeholder="Data Saída (DD/MM/YYYY HH:mm)"
-        keyboardType="numeric"
-        value={form.data_saida}
-        onChangeText={(text) => handleChange('data_saida', text)}
-        style={styles.input}
-      />
+            if (clean.length < 3) {
+              setResultados([]);
+              return;
+            }
 
-      <TextInput
-        placeholder="Placa"
-        value={form.placa}
-        onChangeText={(v) => handleChange('placa', v)}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Destino"
-        value={form.destino}
-        onChangeText={(v) => handleChange('destino', v)}
-        style={styles.input}
-      />
+            buscarVisitantes(clean);
+          }}
+          style={styles.input}
+        />
 
-      {/* Atendente desabilitado */}
-      <View style={[styles.input, styles.inputDisabled]}>
-        <Text selectable>{form.atendente}</Text>
+        {/* 🔥 AUTOCOMPLETE */}
+        {resultados.length > 0 && (
+          <View style={styles.dropdown}>
+            <ScrollView>
+              {resultados.map((item, index) => (
+                <Text
+                  key={index}
+                  style={styles.item}
+                  onPress={() => {
+                    setResultados([]);
+
+                    const formatted = formatCpfCnpj(item.cpf_cnpj || '');
+
+                    setBusca(formatted);
+
+                    setForm(prev => ({
+                      ...prev,
+                      cpf_cnpj: formatted,
+                      nome: item.nome || '',
+                      empresa: item.empresa || '',
+                      placa: item.placa || '',
+                    }));
+                  }}
+                >
+                  {item.nome} - {item.empresa} ({item.cpf_cnpj})
+                </Text>
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </View>
 
-      {/* ✅ Picker para selecionar Local */}
-      <View >
-        <Picker
+      <TextInput placeholder="Nome" value={form.nome}
+        onChangeText={(v) => handleChange('nome', v)} style={styles.input} />
+
+      <TextInput placeholder="Empresa" value={form.empresa}
+        onChangeText={(v) => handleChange('empresa', v)} style={styles.input} />
+
+      <MaskedTextInput
+        mask="99/99/9999 99:99"
+        placeholder="Data Entrada"
+        value={form.data_entrada}
+        onChangeText={(v) => handleChange('data_entrada', v)}
+        style={styles.input}
+      />
+
+      <MaskedTextInput
+        mask="99/99/9999 99:99"
+        placeholder="Data Saída"
+        value={form.data_saida}
+        onChangeText={(v) => handleChange('data_saida', v)}
+        style={styles.input}
+      />
+
+      <TextInput placeholder="Placa" value={form.placa}
+        onChangeText={(v) => handleChange('placa', v)} style={styles.input} />
+
+      <TextInput placeholder="Destino" value={form.destino}
+        onChangeText={(v) => handleChange('destino', v)} style={styles.input} />
+
+      <View style={[styles.input, styles.inputDisabled]}>
+        <Text>{form.atendente}</Text>
+      </View>
+
+     <Picker
           selectedValue={form.local}
           onValueChange={(itemValue) => handleChange('local', itemValue)}
           style={[styles.input]}
@@ -247,17 +289,12 @@ export default function CadastroScreen() {
           <Picker.Item label="FILIAL-3" value="FILIAL-3" />
           <Picker.Item label="FILIAL-4" value="FILIAL-4" />
         </Picker>
-      </View>
 
-      <TextInput
-        placeholder="Observações"
-        value={form.obs}
+      <TextInput placeholder="Obs" value={form.obs}
         onChangeText={(v) => handleChange('obs', v)}
-        style={styles.input}
-        multiline
-      />
+        style={styles.input} multiline />
 
-      <View style={styles.buttonContainer}>
+         <View style={styles.buttonContainer}>
         <View style={styles.button}>
           <Button title="Salvar" onPress={salvar} />
         </View>
@@ -271,29 +308,21 @@ export default function CadastroScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    marginTop: 25,
-    backgroundColor: '#000'
-  },
-
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#fff'
-  },
-
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 3,
-    padding: 10,
+  container: { flex: 1, padding: 20, backgroundColor: '#000' },
+  title: { fontSize: 20, color: '#fff', marginBottom: 10 },
+  input: { backgroundColor: '#fff', padding: 10, marginBottom: 5, borderRadius: 5 },
+  dropdown: {
     backgroundColor: '#fff',
-    borderRadius: 5,
+    borderWidth: 1,
+    maxHeight: 150
   },
-
+  item: {
+    padding: 10,
+    borderBottomWidth: 1
+  },
+  inputDisabled: {
+    backgroundColor: '#eee'
+  },
   button: {
     marginTop: 5,
   },
@@ -301,10 +330,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 0,
-  },
-  inputDisabled: {
-    backgroundColor: '#eee', // fundo cinza claro
-    color: '#666',           // texto mais claro
-    opacity: 0.7,            // efeito visual
-  },
+  }
 });
