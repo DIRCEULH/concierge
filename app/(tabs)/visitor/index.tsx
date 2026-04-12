@@ -52,7 +52,7 @@ export default function CadastroScreen() {
   const [busca, setBusca] = useState('');
   const [resultados, setResultados] = useState<Visitante[]>([]);
 
-    const start = async () => {
+  const start = async () => {
     router.replace('/(tabs)');
   };
 
@@ -100,16 +100,14 @@ export default function CadastroScreen() {
         `http://192.168.0.12:3000/buscaVisitantes?search=${clean}`
       );
 
-      const data = response.data || [];
+      const data = response.data ?? [];
 
-      // 🔥 FILTRO MAIS RIGOROSO
-      const filtrados = data.filter(item =>
-        item.cpf_cnpj
-          ?.replace(/[^a-zA-Z0-9]/g, '')
+      const filtrados = data.filter((item) =>
+        (item.cpf_cnpj ?? '')
+          .replace(/[^a-zA-Z0-9]/g, '')
           .toUpperCase()
           .includes(clean)
       );
-
       setResultados(filtrados);
     } catch (error) {
       console.log('Erro busca:', error);
@@ -273,28 +271,28 @@ export default function CadastroScreen() {
         <Text>{form.atendente}</Text>
       </View>
 
-     <Picker
-          selectedValue={form.local}
-          onValueChange={(itemValue) => handleChange('local', itemValue)}
-          style={[styles.input]}
-        >
-          <Picker.Item label="Selecione o local..." value="" />
-          <Picker.Item label="MATRIZ" value="MATRIZ" />
-          <Picker.Item label="CD-1" value="CD-1" />
-          <Picker.Item label="CD-2" value="CD-2" />
-          <Picker.Item label="CD-3" value="CD-3" />
-          <Picker.Item label="CD-4" value="CD-4" />
-          <Picker.Item label="FILIAL-1" value="FILIAL-1" />
-          <Picker.Item label="FILIAL-2" value="FILIAL-2" />
-          <Picker.Item label="FILIAL-3" value="FILIAL-3" />
-          <Picker.Item label="FILIAL-4" value="FILIAL-4" />
-        </Picker>
+      <Picker
+        selectedValue={form.local}
+        onValueChange={(itemValue) => handleChange('local', itemValue)}
+        style={[styles.input]}
+      >
+        <Picker.Item label="Selecione o local..." value="" />
+        <Picker.Item label="MATRIZ" value="MATRIZ" />
+        <Picker.Item label="CD-1" value="CD-1" />
+        <Picker.Item label="CD-2" value="CD-2" />
+        <Picker.Item label="CD-3" value="CD-3" />
+        <Picker.Item label="CD-4" value="CD-4" />
+        <Picker.Item label="FILIAL-1" value="FILIAL-1" />
+        <Picker.Item label="FILIAL-2" value="FILIAL-2" />
+        <Picker.Item label="FILIAL-3" value="FILIAL-3" />
+        <Picker.Item label="FILIAL-4" value="FILIAL-4" />
+      </Picker>
 
       <TextInput placeholder="Obs" value={form.obs}
         onChangeText={(v) => handleChange('obs', v)}
         style={styles.input} multiline />
 
-         <View style={styles.buttonContainer}>
+      <View style={styles.buttonContainer}>
         <View style={styles.button}>
           <Button title="Salvar" onPress={salvar} />
         </View>
