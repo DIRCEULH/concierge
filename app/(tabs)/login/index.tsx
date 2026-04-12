@@ -45,7 +45,7 @@ export default function LoginScreen() {
 
       }
 
-      const res = await axios.post("http://DIRCEUHEINECK:3000/login", {
+      const res = await axios.post("http://192.168.0.12:3000/login", {
         user,
         email,
         password
@@ -94,8 +94,7 @@ export default function LoginScreen() {
 
       }
 
-      const res = await axios.post('http://DIRCEUHEINECK:3000/register', { user, email, password });
-      Alert.alert(res.data.message);
+      const res = await axios.post('http://192.168.0.12:3000/register', { user, email, password });
       showMessage('Atenção', res.data.message);
     } catch (err: any) {
 

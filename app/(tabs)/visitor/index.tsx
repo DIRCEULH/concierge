@@ -97,7 +97,7 @@ export default function CadastroScreen() {
 
     try {
       const response = await axios.get(
-        `http://DIRCEUHEINECK:3000/buscaVisitantes?search=${clean}`
+        `http://192.168.0.12:3000/buscaVisitantes?search=${clean}`
       );
 
       const data = response.data ?? [];
@@ -152,7 +152,7 @@ export default function CadastroScreen() {
       if (!form.empresa) return showMessage('Erro', 'Empresa obrigatório');
 
       const response = await axios.post(
-        'http://DIRCEUHEINECK:3000/visitors',
+        'http://192.168.0.12:3000/visitors',
         form
       );
 
