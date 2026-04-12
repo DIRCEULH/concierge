@@ -97,12 +97,12 @@ export default function CadastroScreen() {
 
     try {
       const response = await axios.get(
-        `http://192.168.0.12:3000/buscaVisitantes?search=${clean}`
+        `http://DIRCEUHEINECK:3000/buscaVisitantes?search=${clean}`
       );
 
       const data = response.data ?? [];
 
-      const filtrados = data.filter((item) =>
+      const filtrados = data.filter((item: any) =>
         (item.cpf_cnpj ?? '')
           .replace(/[^a-zA-Z0-9]/g, '')
           .toUpperCase()
@@ -152,7 +152,7 @@ export default function CadastroScreen() {
       if (!form.empresa) return showMessage('Erro', 'Empresa obrigatório');
 
       const response = await axios.post(
-        'http://192.168.0.12:3000/visitors',
+        'http://DIRCEUHEINECK:3000/visitors',
         form
       );
 

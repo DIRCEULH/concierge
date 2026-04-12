@@ -133,7 +133,7 @@ export default function HomeScreen() {
       const dataMySQL = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
       // Monta URL com data e local
-      let url = `http://192.168.0.12:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
+      let url = `http://DIRCEUHEINECK:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
       if (local) {
         url += `&local=${encodeURIComponent(local)}`;
       }
@@ -176,7 +176,7 @@ export default function HomeScreen() {
     const novaDataString = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
 
     try {
-      await fetch(`http://192.168.0.12:3000/visitantes/${selectedRegistro.id}`, {
+      await fetch(`http://DIRCEUHEINECK:3000/visitantes/${selectedRegistro.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [campoData]: novaDataString }),
@@ -225,73 +225,58 @@ export default function HomeScreen() {
       {/* Filtro */}
 
 
-      <View style={{ flexDirection: 'row', marginBottom: 10, alignItems: 'center' }}>
+   <View style={styles.filtrosContainer}>
+  
+  <View style={styles.filtroItem}>
+    <Picker
+      selectedValue={filtroLocal}
+      onValueChange={handleLocalChange}
+      style={styles.input}
+    >
+      <Picker.Item label="Selecione o local..." value="" />
+      <Picker.Item label="MATRIZ" value="MATRIZ" />
+      <Picker.Item label="CD-1" value="CD-1" />
+      <Picker.Item label="CD-2" value="CD-2" />
+      <Picker.Item label="CD-3" value="CD-3" />
+      <Picker.Item label="CD-4" value="CD-4" />
+      <Picker.Item label="FILIAL-1" value="FILIAL-1" />
+      <Picker.Item label="FILIAL-2" value="FILIAL-2" />
+      <Picker.Item label="FILIAL-3" value="FILIAL-3" />
+      <Picker.Item label="FILIAL-4" value="FILIAL-4" />
+    </Picker>
+  </View>
 
+  <View style={styles.filtroItem}>
+    <MaskedTextInput
+      mask="99/99/9999"
+      placeholder="Data"
+      keyboardType="numeric"
+      value={filtroData}
+      onChangeText={setFiltroData}
+      style={styles.input}
+    />
+  </View>
 
-        <Picker
-          selectedValue={filtroLocal}
-          onValueChange={handleLocalChange}
-          style={[styles.input]}
-        >
-          <Picker.Item label="Selecione o local..." value="" />
-          <Picker.Item label="MATRIZ" value="MATRIZ" />
-          <Picker.Item label="CD-1" value="CD-1" />
-          <Picker.Item label="CD-2" value="CD-2" />
-          <Picker.Item label="CD-3" value="CD-3" />
-          <Picker.Item label="CD-4" value="CD-4" />
-          <Picker.Item label="FILIAL-1" value="FILIAL-1" />
-          <Picker.Item label="FILIAL-2" value="FILIAL-2" />
-          <Picker.Item label="FILIAL-3" value="FILIAL-3" />
-          <Picker.Item label="FILIAL-4" value="FILIAL-4" />
-        </Picker>
+  <View style={styles.filtroItem}>
 
-
-        {/* Filtro por nome */}
         <TextInput
-          placeholder="Filtrar por nome..."
-          value={filtroNome}
-          onChangeText={setFiltroNome}
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            padding: 8,
-            backgroundColor: '#fff',
-            marginRight: 5
-          }}
-        />
+      placeholder="Filtrar por nome..."
+      value={filtroNome}
+      onChangeText={setFiltroNome}
+      style={styles.input}
+    />
+  </View>
 
-        {/* Filtro por data */}
-        <MaskedTextInput
-          mask="99/99/9999"
-          placeholder="Data Entrada (DD/MM/YYYY)"
-          keyboardType="numeric"
-          value={filtroData}
-          onChangeText={setFiltroData}
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            padding: 8,
-            backgroundColor: '#fff',
-            textAlign: 'center',
-            marginRight: 5
-          }}
-        />
+<View style={styles.filtroItemButton}>
+  <TouchableOpacity
+    onPress={() => fetchRegistros(filtroData, filtroLocal)}
+    style={styles.botaoBuscar}
+  >
+    <Text style={styles.textoBotao}>🔍</Text>
+  </TouchableOpacity>
+</View>
 
-        {/* Botão buscar */}
-        <TouchableOpacity
-          onPress={() => {
-            fetchRegistros(filtroData, filtroLocal);
-          }}
-          style={{
-            backgroundColor: '#007bff',
-            paddingVertical: 10,
-            paddingHorizontal: 15,
-            borderRadius: 5
-          }}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Buscar</Text>
-        </TouchableOpacity>
-      </View>
+</View>
 
       {/* Tabela */}
       <View style={{ flex: 1, backgroundColor: '#000' }}> {/* Container principal ocupa 100% */}
@@ -421,5 +406,37 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
 
+filtrosContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap', // 👈 ESSENCIAL
+  justifyContent: 'space-between',
+  marginBottom: 10,
+},
+
+filtroItem: {
+  width: '48%', // 2 por linha
+  marginBottom: 8,
+},
+
+
+filtroItemButton: {
+  width: '48%', // mesmo padrão dos inputs
+  alignItems: 'flex-end', // 👉 joga o botão pra direita
+},
+
+botaoBuscar: {
+  height: 40, // 👉 mesma altura dos inputs
+  minWidth: 50, // 👉 botão menor
+  backgroundColor: '#007bff',
+  borderRadius: 5,
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 10,
+},
+
+textoBotao: {
+  color: '#fff',
+  fontWeight: 'bold',
+},
 
 });
