@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -18,7 +19,6 @@ import {
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
 type Registro = {
   id: number;
   cpf_cnpj: string;
@@ -62,11 +62,11 @@ export default function HomeScreen() {
     const loadLocal = async () => {
       try {
         const savedLocal = await AsyncStorage.getItem('filtroLocal');
-        if (savedLocal) { 
+        if (savedLocal) {
           setFiltroLocal(savedLocal);
           fetchRegistros(filtroData, savedLocal);
 
-         }
+        }
 
 
       } catch (error) {
@@ -125,7 +125,7 @@ export default function HomeScreen() {
 
   const fetchRegistros = async (dataEntrada: string, local: string) => {
 
-    console.log('Dirceu', dataEntrada,local)
+    console.log('Dirceu', dataEntrada, local)
     setLoading(true);
     try {
       // Convertendo data para formato MySQL: YYYY-MM-DD
@@ -225,58 +225,58 @@ export default function HomeScreen() {
       {/* Filtro */}
 
 
-   <View style={styles.filtrosContainer}>
-  
-  <View style={styles.filtroItem}>
-    <Picker
-      selectedValue={filtroLocal}
-      onValueChange={handleLocalChange}
-      style={styles.input}
-    >
-      <Picker.Item label="Selecione o local..." value="" />
-      <Picker.Item label="MATRIZ" value="MATRIZ" />
-      <Picker.Item label="CD-1" value="CD-1" />
-      <Picker.Item label="CD-2" value="CD-2" />
-      <Picker.Item label="CD-3" value="CD-3" />
-      <Picker.Item label="CD-4" value="CD-4" />
-      <Picker.Item label="FILIAL-1" value="FILIAL-1" />
-      <Picker.Item label="FILIAL-2" value="FILIAL-2" />
-      <Picker.Item label="FILIAL-3" value="FILIAL-3" />
-      <Picker.Item label="FILIAL-4" value="FILIAL-4" />
-    </Picker>
-  </View>
+      <View style={styles.filtrosContainer}>
 
-  <View style={styles.filtroItem}>
-    <MaskedTextInput
-      mask="99/99/9999"
-      placeholder="Data"
-      keyboardType="numeric"
-      value={filtroData}
-      onChangeText={setFiltroData}
-      style={styles.input}
-    />
-  </View>
+        <View style={styles.filtroItem}>
+          <Picker
+            selectedValue={filtroLocal}
+            onValueChange={handleLocalChange}
+            style={styles.input}
+          >
+            <Picker.Item label="Selecione o local..." value="" />
+            <Picker.Item label="MATRIZ" value="MATRIZ" />
+            <Picker.Item label="CD-1" value="CD-1" />
+            <Picker.Item label="CD-2" value="CD-2" />
+            <Picker.Item label="CD-3" value="CD-3" />
+            <Picker.Item label="CD-4" value="CD-4" />
+            <Picker.Item label="FILIAL-1" value="FILIAL-1" />
+            <Picker.Item label="FILIAL-2" value="FILIAL-2" />
+            <Picker.Item label="FILIAL-3" value="FILIAL-3" />
+            <Picker.Item label="FILIAL-4" value="FILIAL-4" />
+          </Picker>
+        </View>
 
-  <View style={styles.filtroItem}>
+        <View style={styles.filtroItem}>
+          <MaskedTextInput
+            mask="99/99/9999"
+            placeholder="Data"
+            keyboardType="numeric"
+            value={filtroData}
+            onChangeText={setFiltroData}
+            style={styles.input}
+          />
+        </View>
 
-        <TextInput
-      placeholder="Filtrar por nome..."
-      value={filtroNome}
-      onChangeText={setFiltroNome}
-      style={styles.input}
-    />
-  </View>
+        <View style={styles.filtroItem}>
 
-<View style={styles.filtroItemButton}>
-  <TouchableOpacity
-    onPress={() => fetchRegistros(filtroData, filtroLocal)}
-    style={styles.botaoBuscar}
-  >
-    <Text style={styles.textoBotao}>🔍</Text>
-  </TouchableOpacity>
-</View>
+          <TextInput
+            placeholder="Filtrar por nome..."
+            value={filtroNome}
+            onChangeText={setFiltroNome}
+            style={styles.input}
+          />
+        </View>
 
-</View>
+        <View style={styles.filtroItemButton}>
+          <TouchableOpacity
+            onPress={() => fetchRegistros(filtroData, filtroLocal)}
+            style={styles.botaoBuscar}
+          >
+            <Text style={styles.textoBotao}>🔍</Text>
+          </TouchableOpacity>
+        </View>
+
+      </View>
 
       {/* Tabela */}
       <View style={{ flex: 1, backgroundColor: '#000' }}> {/* Container principal ocupa 100% */}
@@ -344,7 +344,7 @@ export default function HomeScreen() {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10, width: 300 }}>
               <Text style={{ marginBottom: 10 }}>
-                Selecionar {campoData === 'data_entrada' ? 'data de entrada' : 'data de saída'}
+                Selecionar {campoData === 'data_entrada' ? 'data e hora de entrada.' : 'data e hora de saída.'}
               </Text>
 
               {showPicker && (
@@ -359,9 +359,42 @@ export default function HomeScreen() {
                 />
               )}
 
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 15 }}>
-                <Button title="Salvar" onPress={salvarData} />
-                <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 15
+              }}>
+
+                <TouchableOpacity
+                  onPress={salvarData}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
+                    backgroundColor: '#007bff',
+                    padding: 10,
+                    borderRadius: 6
+                  }}
+                >
+                  <Ionicons name="save-outline" size={20} color="#fff" />
+                  <Text style={{ color: '#fff' }}>Salvar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 6,
+                    backgroundColor: '#ccc',
+                    padding: 10,
+                    borderRadius: 6
+                  }}
+                >
+                  <Ionicons name="close-outline" size={20} color="#000" />
+                  <Text>Cancelar</Text>
+                </TouchableOpacity>
+
               </View>
             </View>
           </View>
@@ -406,37 +439,37 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
 
-filtrosContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap', // 👈 ESSENCIAL
-  justifyContent: 'space-between',
-  marginBottom: 10,
-},
+  filtrosContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // 👈 ESSENCIAL
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
 
-filtroItem: {
-  width: '48%', // 2 por linha
-  marginBottom: 8,
-},
+  filtroItem: {
+    width: '48%', // 2 por linha
+    marginBottom: 8,
+  },
 
 
-filtroItemButton: {
-  width: '48%', // mesmo padrão dos inputs
-  alignItems: 'flex-end', // 👉 joga o botão pra direita
-},
+  filtroItemButton: {
+    width: '48%', // mesmo padrão dos inputs
+    alignItems: 'flex-end', // 👉 joga o botão pra direita
+  },
 
-botaoBuscar: {
-  height: 40, // 👉 mesma altura dos inputs
-  minWidth: 50, // 👉 botão menor
-  backgroundColor: '#007bff',
-  borderRadius: 5,
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingHorizontal: 10,
-},
+  botaoBuscar: {
+    height: 40, // 👉 mesma altura dos inputs
+    minWidth: 50, // 👉 botão menor
+    backgroundColor: '#007bff',
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
 
-textoBotao: {
-  color: '#fff',
-  fontWeight: 'bold',
-},
+  textoBotao: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
 
 });

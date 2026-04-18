@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
-  Button,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,9 @@ import {
   View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
+
+import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
 
 export default function CadastroScreen() {
 
@@ -150,6 +152,12 @@ export default function CadastroScreen() {
       if (!form.cpf_cnpj) return showMessage('Erro', 'CPF/CNPJ obrigatório');
       if (!form.nome) return showMessage('Erro', 'Nome obrigatório');
       if (!form.empresa) return showMessage('Erro', 'Empresa obrigatório');
+
+      if (!form.data_entrada) return showMessage('Erro', 'data_entrada obrigatório');
+      if (!form.data_saida) return showMessage('Erro', 'data_saida obrigatório');
+      if (!form.placa) return showMessage('Erro', 'placa obrigatório');
+      if (!form.destino) return showMessage('Erro', 'destino obrigatório');
+      if (!form.local) return showMessage('Erro', 'local obrigatório');
 
       const response = await axios.post(
         'http://192.168.0.12:3000/visitors',
@@ -293,13 +301,17 @@ export default function CadastroScreen() {
         style={styles.input} multiline />
 
       <View style={styles.buttonContainer}>
-        <View style={styles.button}>
-          <Button title="Salvar" onPress={salvar} />
-        </View>
 
-        <View style={styles.button}>
-          <Button title="Voltar" onPress={start} />
-        </View>
+        <TouchableOpacity style={styles.button} onPress={salvar}>
+          <Ionicons name="save-outline" size={20} color="#fff" />
+          <Text style={styles.buttonText}>Salvar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={start}>
+          <Ionicons name="arrow-back-outline" size={20} color="#fff" />
+          <Text style={styles.buttonText}>Voltar</Text>
+        </TouchableOpacity>
+
       </View>
     </ScrollView>
   );
@@ -321,12 +333,21 @@ const styles = StyleSheet.create({
   inputDisabled: {
     backgroundColor: '#eee'
   },
-  button: {
-    marginTop: 5,
+
+    buttonText: {
+    color: '#fff',
+    fontWeight: 'bold'
   },
-  buttonContainer: {
+    buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 0,
-  }
+    gap: 10
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 6,
+  },
 });
