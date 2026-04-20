@@ -1,3 +1,30 @@
+
+📱 Concierge Mobile – Administração de Visitantes
+
+Aplicativo mobile desenvolvido com React Native (Expo) para gerenciamento de visitantes em portarias, integrado à API do sistema Concierge.
+
+📌 Descrição
+
+O Concierge Mobile permite que porteiros e administradores realizem o controle de acesso de visitantes diretamente pelo celular, trazendo mais agilidade e mobilidade para o dia a dia da portaria.
+
+Com ele, é possível cadastrar visitantes, consultar registros e acompanhar entradas e saídas em tempo real.
+
+⚙️ Tecnologias utilizadas
+React Native
+Expo
+Axios (requisições HTTP)
+React Navigation
+AsyncStorage (armazenamento local)
+
+
+Copyright (c) 2026 Dirceu Heineck
+
+Todos os direitos reservados.
+
+Este software e os arquivos associados não podem ser utilizados, copiados,
+modificados ou distribuídos sem autorização expressa do autor.
+
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
@@ -48,3 +75,7 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+
+
