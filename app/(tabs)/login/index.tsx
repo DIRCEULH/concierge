@@ -14,6 +14,7 @@ export default function LoginScreen() {
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const showMessage = (title: string, message: string) => {
     if (Platform.OS === "web") {
@@ -100,84 +101,93 @@ export default function LoginScreen() {
     }
   };
 
-return (
-  <ThemedView style={styles.container}>
-    <Image
-  source={require('@/assets/images/Concierge.png')}
-  style={styles.logo}
-/>
-    <ThemedText type="title">
-      {isRegister ? "Cadastro" : "Login"}
-    </ThemedText>
+  return (
+    <ThemedView style={styles.container}>
+      <Image
+        source={require('@/assets/images/Concierge.png')}
+        style={styles.logo}
+      />
+      <ThemedText type="title">
+        {isRegister ? "Cadastro" : "Login"}
+      </ThemedText>
 
-    {/* 👤 Usuário (só no cadastro) */}
-    {isRegister && (
+      {/* 👤 Usuário (só no cadastro) */}
+      {isRegister && (
+        <View style={styles.inputContainer}>
+          <Ionicons name="person-outline" size={20} />
+          <TextInput
+            placeholder="Usuário"
+            value={user}
+            onChangeText={setUser}
+            style={styles.input}
+            autoCapitalize="none"
+          />
+        </View>
+      )}
+
+      {/* 📧 Email */}
       <View style={styles.inputContainer}>
-        <Ionicons name="person-outline" size={20} />
+        <Ionicons name="mail-outline" size={20} />
         <TextInput
-          placeholder="Usuário"
-          value={user}
-          onChangeText={setUser}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
           style={styles.input}
           autoCapitalize="none"
+          keyboardType="email-address"
         />
       </View>
-    )}
 
-    {/* 📧 Email */}
-    <View style={styles.inputContainer}>
-      <Ionicons name="mail-outline" size={20} />
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-    </View>
+      {/* 🔒 Senha */}
+      <View style={styles.inputContainer}>
+        <Ionicons name="lock-closed-outline" size={20} />
 
-    {/* 🔒 Senha */}
-    <View style={styles.inputContainer}>
-      <Ionicons name="lock-closed-outline" size={20} />
-      <TextInput
-        placeholder="Senha"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-    </View>
+        <TextInput
+          placeholder="Senha"
+          value={password}
+          onChangeText={setPassword}
+          style={styles.input}
+          secureTextEntry={!showPassword}
+        />
 
-    {/* 🔘 Botão principal */}
-    <TouchableOpacity
-      style={styles.button}
-      onPress={isRegister ? handleRegister : handleLogin}
-    >
-      <Ionicons
-        name={isRegister ? "person-add-outline" : "log-in-outline"}
-        size={20}
-        color="#fff"
-      />
-      <Text style={styles.buttonText}>
-        {isRegister ? "Cadastrar" : "Login"}
-      </Text>
-    </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons
+            name={showPassword ? "eye-off-outline" : "eye-outline"}
+            size={20}
+          />
+        </TouchableOpacity>
+      </View>
 
-    {/* 🔄 Alternar modo */}
-    <TouchableOpacity
-      onPress={() => setIsRegister(!isRegister)}
-      style={styles.switchButton}
-    >
-      <Text style={{ color: '#007bff' }}>
-        {isRegister
-          ? "Já tem conta? Fazer login"
-          : "Não tem conta? Cadastrar"}
-      </Text>
-    </TouchableOpacity>
+      {/* 🔘 Botão principal */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={isRegister ? handleRegister : handleLogin}
+      >
+        <Ionicons
+          name={isRegister ? "person-add-outline" : "log-in-outline"}
+          size={20}
+          color="#fff"
+        />
+        <Text style={styles.buttonText}>
+          {isRegister ? "Cadastrar" : "Login"}
+        </Text>
+      </TouchableOpacity>
 
-  </ThemedView>
-)}
+      {/* 🔄 Alternar modo */}
+      <TouchableOpacity
+        onPress={() => setIsRegister(!isRegister)}
+        style={styles.switchButton}
+      >
+        <Text style={{ color: '#007bff' }}>
+          {isRegister
+            ? "Já tem conta? Fazer login"
+            : "Não tem conta? Cadastrar"}
+        </Text>
+      </TouchableOpacity>
+
+    </ThemedView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -186,7 +196,6 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 12
   },
-
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -195,9 +204,9 @@ const styles = StyleSheet.create({
     borderColor: '#888',
     borderRadius: 6,
     paddingHorizontal: 10,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    justifyContent: 'space-between',
   },
-
   input: {
     flex: 1,
     paddingVertical: 10,
@@ -224,11 +233,11 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   logo: {
-  width: 150,
-  height: 150,
-  alignSelf: 'center',
-  marginBottom: 5,
-  resizeMode: 'contain',
-  marginTop:-125
-},
+    width: 150,
+    height: 150,
+    alignSelf: 'center',
+    marginBottom: 5,
+    resizeMode: 'contain',
+    marginTop: -125
+  },
 })
