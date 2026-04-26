@@ -309,7 +309,7 @@ export default function HomeScreen() {
               {registrosFiltrados && registrosFiltrados.length > 0 ? (registrosFiltrados.map((item) => (
                 <View key={item.id} style={styles.row}>
                   <Text style={[styles.cell, { width: 30 }]}>{item.id}</Text>
-                  <Text style={[styles.cell, { width: 130}]}>{item.cpf_cnpj}</Text>
+                  <Text style={[styles.cell, { width: 130 }]}>{item.cpf_cnpj}</Text>
                   <Text style={[styles.cell, { width: 250 }]}>{item.nome}</Text>
                   <Text style={[styles.cell, { width: 100 }]}>{item.empresa}</Text>
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_entrada')}>
@@ -317,7 +317,7 @@ export default function HomeScreen() {
                       style={[
                         styles.cell,
                         {
-                          width: 150,
+                          width: 200,
                           justifyContent: 'center',
                           alignItems: 'center',
                         },
@@ -333,11 +333,15 @@ export default function HomeScreen() {
                   {/* Data Saída */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_saida')}>
                     <View style={[styles.cell, {
-                      width: 150,
+                      width: 200,
                       justifyContent: 'center',
                       alignItems: 'center',
                     },]}>
-                      {item.data_saida || <Ionicons name="calendar-outline" size={20} color="#007bff" />}
+                      {item.data_saida ? (
+                        <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
+                      ) : (
+                        <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                      )}
                     </View>
                   </TouchableOpacity>
 
