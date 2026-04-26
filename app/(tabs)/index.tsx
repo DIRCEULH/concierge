@@ -133,7 +133,7 @@ export default function HomeScreen() {
       const dataMySQL = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
       // Monta URL com data e local
-      let url = `http://192.168.0.12:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
+      let url = `http://64.181.165.17:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
       if (local) {
         url += `&local=${encodeURIComponent(local)}`;
       }
@@ -153,15 +153,21 @@ export default function HomeScreen() {
   };
 
   // Abre popup para inserir data_entrada ou data_saida
-  const abrirPopupData = (item: Registro, campo: 'data_entrada' | 'data_saida') => {
-    if (campo === 'data_saida' && item.data_saida !== '00/00/0000 00:00') return;
-    if (campo === 'data_entrada' && item.data_entrada !== '00/00/0000 00:00') return;
+const abrirPopupData = (
+  item: Registro,
+  campo: 'data_entrada' | 'data_saida'
+) => {
 
-    setSelectedRegistro(item);
-    setDate(new Date());
-    setCampoData(campo);
-    setModalVisible(true);
-  };
+  const valor =
+    campo === 'data_saida'
+      ? item.data_saida
+      : item.data_entrada;
+
+  setSelectedRegistro(item);
+  setCampoData(campo);
+  setDate(valor ? new Date(valor) : new Date());
+  setModalVisible(true);
+};
 
   // Salva data_entrada ou data_saida
   const salvarData = async () => {
@@ -176,7 +182,7 @@ export default function HomeScreen() {
     const novaDataString = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
 
     try {
-      await fetch(`http://192.168.0.12:3000/visitantes/${selectedRegistro.id}`, {
+      await fetch(`http://64.181.165.17:3000/visitantes/${selectedRegistro.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [campoData]: novaDataString }),
@@ -307,14 +313,14 @@ export default function HomeScreen() {
 
                   {/* Data Entrada */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_entrada')}>
-                    <Text style={[styles.cell, { color: item.data_entrada === '00/00/0000 00:00' ? 'red' : '#fff' }, { width: 150 }]}>
+                    <Text style={[styles.cell, { color: !item.data_entrada ? 'red' : '#fff' }, { width: 150 }]}>
                       {item.data_entrada || '—'}
                     </Text>
                   </TouchableOpacity>
 
                   {/* Data Saída */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_saida')}>
-                    <Text style={[styles.cell, { color: item.data_saida === '00/00/0000 00:00' ? 'red' : '#fff' }, { width: 150 }]}>
+                    <Text style={[styles.cell, { color: !item.data_saida ? 'red' : '#fff' }, { width: 150 }]}>
                       {item.data_saida || '—'}
                     </Text>
                   </TouchableOpacity>

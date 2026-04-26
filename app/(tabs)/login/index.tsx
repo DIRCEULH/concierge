@@ -40,7 +40,7 @@ export default function LoginScreen() {
         default:
       }
 
-      const res = await axios.post("http://192.168.0.12:3000/login", {
+      const res = await axios.post("http://64.181.165.17:3000/login", {
         email,
         password
       });
@@ -80,7 +80,7 @@ export default function LoginScreen() {
       }
 
       const res = await axios.post(
-        "http://192.168.0.12:3000/register",
+        "http://64.181.165.17:3000/register",
         { user, email, password }
       );
 

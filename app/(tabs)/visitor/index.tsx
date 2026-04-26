@@ -99,7 +99,7 @@ export default function CadastroScreen() {
 
     try {
       const response = await axios.get(
-        `http://192.168.0.12:3000/buscaVisitantes?search=${clean}`
+        `http://64.181.165.17:3000/buscaVisitantes?search=${clean}`
       );
 
       const data = response.data ?? [];
@@ -153,14 +153,14 @@ export default function CadastroScreen() {
       if (!form.nome) return showMessage('Erro', 'Nome obrigatório');
       if (!form.empresa) return showMessage('Erro', 'Empresa obrigatório');
 
-      if (!form.data_entrada) return showMessage('Erro', 'data_entrada obrigatório');
-      if (!form.data_saida) return showMessage('Erro', 'data_saida obrigatório');
+      // if (!form.data_entrada) return showMessage('Erro', 'data_entrada obrigatório');
+      // if (!form.data_saida) return showMessage('Erro', 'data_saida obrigatório');
       if (!form.placa) return showMessage('Erro', 'placa obrigatório');
       if (!form.destino) return showMessage('Erro', 'destino obrigatório');
       if (!form.local) return showMessage('Erro', 'local obrigatório');
 
       const response = await axios.post(
-        'http://192.168.0.12:3000/visitors',
+        'http://64.181.165.17:3000/visitors',
         form
       );
 

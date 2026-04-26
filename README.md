@@ -16,6 +16,9 @@ Axios (requisições HTTP)
 React Navigation
 AsyncStorage (armazenamento local)
 
+Link para baixar o apk e testar: https://drive.google.com/drive/folders/1sa0_nnlEwXqbqB4tFTBbz04zFMeU5QG4?usp=sharing
+
+_____________________________________________________________________________________
 
 Copyright (c) 2026 Dirceu Heineck
 
