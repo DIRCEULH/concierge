@@ -286,119 +286,105 @@ export default function HomeScreen() {
 
       </View>
 
-{/* Tabela */}
-<View style={{ flex: 1, width: '100%', backgroundColor: '#000' }}>
+      {/* Tabela */}
+      <View style={{ flex: 1, width: '100%', backgroundColor: '#000' }}>
 
-  {/* SCROLL VERTICAL */}
-  <ScrollView
-    style={{ flex: 1 }}
-    stickyHeaderIndices={[0]}
-  >
+        {/* SCROLL VERTICAL (sticky header funciona aqui) */}
+        <ScrollView style={{ flex: 1 }}>
 
-    {/* HEADER FIXO (AGORA CORRETO PARA STICKY) */}
-    <View style={styles.header}>
-      <Text style={[styles.headerCell, { flex: 0.5 }]}>ID</Text>
-      <Text style={[styles.headerCell, { flex: 2 }]}>CPF/CNPJ</Text>
-      <Text style={[styles.headerCell, { flex: 3 }]}>NOME</Text>
-      <Text style={[styles.headerCell, { flex: 2 }]}>EMPRESA</Text>
-      <Text style={[styles.headerCell, { flex: 2 }]}>ENTRADA</Text>
-      <Text style={[styles.headerCell, { flex: 2 }]}>SAÍDA</Text>
-      <Text style={[styles.headerCell, { flex: 1.5 }]}>PLACA</Text>
-      <Text style={[styles.headerCell, { flex: 1.5 }]}>DESTINO</Text>
-      <Text style={[styles.headerCell, { flex: 2 }]}>ATENDENTE</Text>
-      <Text style={[styles.headerCell, { flex: 1 }]}>OBS</Text>
-    </View>
+          {/* SCROLL HORIZONTAL (HEADER + LINHAS JUNTOS) */}
+          <ScrollView
+            horizontal
+            contentContainerStyle={{ minWidth: '100%' }}
+          >
 
-    {/* SCROLL HORIZONTAL SÓ DAS LINHAS */}
-    <ScrollView
-      horizontal
-      contentContainerStyle={{ flexGrow: 1, minWidth: '100%' }}
-    >
+            <View style={{ minWidth: '100%' }}>
 
-      <View style={{ flexGrow: 1, minWidth: '100%' }}>
+              {/* HEADER (AGORA ACOMPANHA O SCROLL HORIZONTAL) */}
+              <View style={[styles.header, { flexDirection: 'row' }]}>
+                <Text style={[styles.headerCell, { flex: 0.5 }]}>ID</Text>
+                <Text style={[styles.headerCell, { flex: 2 }]}>CPF/CNPJ</Text>
+                <Text style={[styles.headerCell, { flex: 3 }]}>NOME</Text>
+                <Text style={[styles.headerCell, { flex: 2 }]}>EMPRESA</Text>
+                <Text style={[styles.headerCell, { flex: 2 }]}>ENTRADA</Text>
+                <Text style={[styles.headerCell, { flex: 2 }]}>SAÍDA</Text>
+                <Text style={[styles.headerCell, { flex: 1.5 }]}>PLACA</Text>
+                <Text style={[styles.headerCell, { flex: 1.5 }]}>DESTINO</Text>
+                <Text style={[styles.headerCell, { flex: 2 }]}>ATENDENTE</Text>
+                <Text style={[styles.headerCell, { flex: 1 }]}>OBS</Text>
+              </View>
 
-        {/* LINHAS */}
-        {registrosFiltrados && registrosFiltrados.length > 0 ? (
-          registrosFiltrados.map((item, index) => (
-            <View
-              key={item.id}
-              style={[
-                styles.row,
-                {
-                  backgroundColor:
-                    index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
-                },
-              ]}
-            >
+              {/* LINHAS */}
+              {registrosFiltrados?.length > 0 ? (
+                registrosFiltrados.map((item, index) => (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.row,
+                      {
+                        flexDirection: 'row',
+                        backgroundColor: index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
+                      },
+                    ]}
+                  >
 
-              <Text style={[styles.cell, { flex: 0.5 }]}>{item.id}</Text>
-              <Text style={[styles.cell, { flex: 2 }]}>{item.cpf_cnpj}</Text>
-              <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
-              <Text style={[styles.cell, { flex: 2 }]}>{item.empresa}</Text>
+                    <Text style={[styles.cell, { flex: 0.5 }]}>{item.id}</Text>
+                    <Text style={[styles.cell, { flex: 2 }]}>{item.cpf_cnpj}</Text>
+                    <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
+                    <Text style={[styles.cell, { flex: 2 }]}>{item.empresa}</Text>
 
-              {/* ENTRADA */}
-              <TouchableOpacity
-                style={{ flex: 2, minWidth: 160 }}
-                onPress={() => abrirPopupData(item, 'data_entrada')}
-              >
-                <View style={styles.cellCenter}>
-                  {item.data_entrada ? (
-                    <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
-                  ) : (
-                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                  )}
-                </View>
-              </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{ flex: 2.5}}
+                      onPress={() => abrirPopupData(item, 'data_entrada')}
+                    >
+                      <View style={styles.cellCenter}>
+                        {item.data_entrada ? (
+                          <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
+                        ) : (
+                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
 
-              {/* SAÍDA */}
-              <TouchableOpacity
-                style={{ flex: 2, minWidth: 160 }}
-                onPress={() => abrirPopupData(item, 'data_saida')}
-              >
-                <View style={styles.cellCenter}>
-                  {item.data_saida ? (
-                    <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
-                  ) : (
-                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                  )}
-                </View>
-              </TouchableOpacity>
+                    <TouchableOpacity
+                      style={{ flex: 2.5 }}
+                      onPress={() => abrirPopupData(item, 'data_saida')}
+                    >
+                      <View style={styles.cellCenter}>
+                        {item.data_saida ? (
+                          <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
+                        ) : (
+                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
 
-              <Text style={[styles.cell, { flex: 1.5 }]}>{item.placa}</Text>
-              <Text style={[styles.cell, { flex: 1.5 }]}>{item.destino}</Text>
-              <Text style={[styles.cell, { flex: 2 }]}>{item.atendente}</Text>
+                    <Text style={[styles.cell, { flex: 1.5 }]}>{item.placa}</Text>
+                    <Text style={[styles.cell, { flex: 1.5 }]}>{item.destino}</Text>
+                    <Text style={[styles.cell, { flex: 2 }]}>{item.atendente}</Text>
 
-              {/* OBS */}
-              <TouchableOpacity
-                onPress={() => alert(item.obs || 'Sem observação')}
-                style={[
-                  styles.cellCenter,
-                  {
-                    flex: 0.8,
-                    backgroundColor: '#007bff',
-                    borderRadius: 6,
-                    marginVertical: 4,
-                    marginHorizontal: 4,
-                  },
-                ]}
-              >
-                <Icon name="sticky-note" size={16} color="#fff" />
-              </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => alert(item.obs || 'Sem observação')}
+                      style={[styles.cellCenter, { flex: 1, backgroundColor: '#007bff' }]}
+                    >
+                      <Icon name="sticky-note" size={16} color="#fff" />
+                    </TouchableOpacity>
+
+                  </View>
+                ))
+              ) : (
+                <Text style={{ color: '#fff', padding: 10 }}>
+                  Nenhum registro encontrado
+                </Text>
+              )}
 
             </View>
-          ))
-        ) : (
-          <Text style={{ color: '#fff', padding: 10 }}>
-            Nenhum registro encontrado
-          </Text>
-        )}
+          </ScrollView>
 
+        </ScrollView>
       </View>
-    </ScrollView>
 
-  </ScrollView>
 
-</View>
 
       {/* Modal para selecionar data */}
       {modalVisible && (
@@ -474,13 +460,13 @@ const styles = StyleSheet.create({
   buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
   header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
   headerCell: { width: 120, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 5 },
- row: {
-  flexDirection: 'row',
-  borderBottomWidth: 1,
-  borderBottomColor: '#222',
-  minHeight: 34, // 👈 antes estava maior (ou implícito)
-  alignItems: 'center',
-},
+  row: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#222',
+    minHeight: 34, // 👈 antes estava maior (ou implícito)
+    alignItems: 'center',
+  },
   cell: { width: 120, fontSize: 12, paddingHorizontal: 5, borderRightWidth: 1, color: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   tooltip: {
@@ -506,14 +492,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 1,
   },
-cellCenter: {
-  flex: 1,
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 10,
-  borderRightWidth: 1,
-  borderRightColor: '#222',
-},
+  cellCenter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    borderRightWidth: 1,
+    borderRightColor: '#222',
+  },
   filtrosContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap', // 👈 ESSENCIAL
