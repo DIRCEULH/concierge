@@ -153,21 +153,23 @@ export default function HomeScreen() {
   };
 
   // Abre popup para inserir data_entrada ou data_saida
-const abrirPopupData = (
-  item: Registro,
-  campo: 'data_entrada' | 'data_saida'
-) => {
+  const abrirPopupData = (
+    item: Registro,
+    campo: 'data_entrada' | 'data_saida'
+  ) => {
 
-  const valor =
-    campo === 'data_saida'
-      ? item.data_saida
-      : item.data_entrada;
+    const valor =
+      campo === 'data_saida'
+        ? item.data_saida
+        : item.data_entrada;
 
-  setSelectedRegistro(item);
-  setCampoData(campo);
-  setDate(valor ? new Date(valor) : new Date());
-  setModalVisible(true);
-};
+    if (valor) return;
+
+    setSelectedRegistro(item);
+    setCampoData(campo);
+    setDate(valor ? new Date(valor) : new Date());
+    setModalVisible(true);
+  };
 
   // Salva data_entrada ou data_saida
   const salvarData = async () => {
@@ -307,22 +309,36 @@ const abrirPopupData = (
               {registrosFiltrados && registrosFiltrados.length > 0 ? (registrosFiltrados.map((item) => (
                 <View key={item.id} style={styles.row}>
                   <Text style={[styles.cell, { width: 30 }]}>{item.id}</Text>
-                  <Text style={[styles.cell, { width: 100 }]}>{item.cpf_cnpj}</Text>
+                  <Text style={[styles.cell, { width: 130}]}>{item.cpf_cnpj}</Text>
                   <Text style={[styles.cell, { width: 250 }]}>{item.nome}</Text>
                   <Text style={[styles.cell, { width: 100 }]}>{item.empresa}</Text>
-
-                  {/* Data Entrada */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_entrada')}>
-                    <Text style={[styles.cell, { color: !item.data_entrada ? 'red' : '#fff' }, { width: 150 }]}>
-                      {item.data_entrada || '—'}
-                    </Text>
+                    <View
+                      style={[
+                        styles.cell,
+                        {
+                          width: 150,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        },
+                      ]}
+                    >
+                      {item.data_entrada ? (
+                        <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
+                      ) : (
+                        <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                      )}
+                    </View>
                   </TouchableOpacity>
-
                   {/* Data Saída */}
                   <TouchableOpacity onPress={() => abrirPopupData(item, 'data_saida')}>
-                    <Text style={[styles.cell, { color: !item.data_saida ? 'red' : '#fff' }, { width: 150 }]}>
-                      {item.data_saida || '—'}
-                    </Text>
+                    <View style={[styles.cell, {
+                      width: 150,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    },]}>
+                      {item.data_saida || <Ionicons name="calendar-outline" size={20} color="#007bff" />}
+                    </View>
                   </TouchableOpacity>
 
                   <Text style={[styles.cell, { width: 100 }]}>{item.placa}</Text>
