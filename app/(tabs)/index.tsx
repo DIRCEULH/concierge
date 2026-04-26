@@ -286,83 +286,119 @@ export default function HomeScreen() {
 
       </View>
 
-      {/* Tabela */}
-      <View style={{ flex: 1, backgroundColor: '#000' }}> {/* Container principal ocupa 100% */}
-        <ScrollView style={{ flex: 1 }}> {/* Scroll vertical */}
-          <ScrollView horizontal contentContainerStyle={{ flexGrow: 1 }}> {/* Scroll horizontal */}
-            <View style={{ flex: 1 }}>
-              {/* Header */}
-              <View style={styles.header}>
-                <Text style={[styles.headerCell, { width: 30 }]}>ID</Text>
-                <Text style={[styles.headerCell, { width: 100 }]}>CPF/CNPJ</Text>
-                <Text style={[styles.headerCell, { width: 250 }]}>NOME</Text>
-                <Text style={[styles.headerCell, { width: 100 }]}>EMPRESA</Text>
-                <Text style={[styles.headerCell, { width: 150 }]}>ENTRADA</Text>
-                <Text style={[styles.headerCell, { width: 150 }]}>SAÍDA</Text>
-                <Text style={[styles.headerCell, { width: 100 }]}>PLACA</Text>
-                <Text style={[styles.headerCell, { width: 100 }]}>DESTINO</Text>
-                <Text style={[styles.headerCell, { width: 150 }]}>ATENDENTE</Text>
-                <Text style={[styles.headerCell, { width: 100 }]}>OBSERVAÇÂO</Text>
-              </View>
+{/* Tabela */}
+<View style={{ flex: 1, width: '100%', backgroundColor: '#000' }}>
 
-              {/* Linhas */}
-              {registrosFiltrados && registrosFiltrados.length > 0 ? (registrosFiltrados.map((item) => (
-                <View key={item.id} style={styles.row}>
-                  <Text style={[styles.cell, { width: 30 }]}>{item.id}</Text>
-                  <Text style={[styles.cell, { width: 130 }]}>{item.cpf_cnpj}</Text>
-                  <Text style={[styles.cell, { width: 250 }]}>{item.nome}</Text>
-                  <Text style={[styles.cell, { width: 100 }]}>{item.empresa}</Text>
-                  <TouchableOpacity onPress={() => abrirPopupData(item, 'data_entrada')}>
-                    <View
-                      style={[
-                        styles.cell,
-                        {
-                          width: 200,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        },
-                      ]}
-                    >
-                      {item.data_entrada ? (
-                        <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
-                      ) : (
-                        <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                  {/* Data Saída */}
-                  <TouchableOpacity onPress={() => abrirPopupData(item, 'data_saida')}>
-                    <View style={[styles.cell, {
-                      width: 200,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    },]}>
-                      {item.data_saida ? (
-                        <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
-                      ) : (
-                        <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                      )}
-                    </View>
-                  </TouchableOpacity>
+  {/* SCROLL VERTICAL */}
+  <ScrollView
+    style={{ flex: 1 }}
+    stickyHeaderIndices={[0]}
+  >
 
-                  <Text style={[styles.cell, { width: 100 }]}>{item.placa}</Text>
-                  <Text style={[styles.cell, { width: 100 }]}>{item.destino}</Text>
-                  <Text style={[styles.cell, { width: 100 }]}>{item.atendente}</Text>
-                  <TouchableOpacity
-                    style={[styles.buttonIcon]}
-                    onPress={() => alert(item.obs || 'Sem observação')}
-                  >
+    {/* HEADER FIXO (AGORA CORRETO PARA STICKY) */}
+    <View style={styles.header}>
+      <Text style={[styles.headerCell, { flex: 0.5 }]}>ID</Text>
+      <Text style={[styles.headerCell, { flex: 2 }]}>CPF/CNPJ</Text>
+      <Text style={[styles.headerCell, { flex: 3 }]}>NOME</Text>
+      <Text style={[styles.headerCell, { flex: 2 }]}>EMPRESA</Text>
+      <Text style={[styles.headerCell, { flex: 2 }]}>ENTRADA</Text>
+      <Text style={[styles.headerCell, { flex: 2 }]}>SAÍDA</Text>
+      <Text style={[styles.headerCell, { flex: 1.5 }]}>PLACA</Text>
+      <Text style={[styles.headerCell, { flex: 1.5 }]}>DESTINO</Text>
+      <Text style={[styles.headerCell, { flex: 2 }]}>ATENDENTE</Text>
+      <Text style={[styles.headerCell, { flex: 1 }]}>OBS</Text>
+    </View>
 
-                    <Text style={{ color: '#fff', fontSize: 12 }}><Icon name="sticky-note" size={14} color="#fff" style={{ marginRight: 4 }} /></Text>
-                  </TouchableOpacity>
+    {/* SCROLL HORIZONTAL SÓ DAS LINHAS */}
+    <ScrollView
+      horizontal
+      contentContainerStyle={{ flexGrow: 1, minWidth: '100%' }}
+    >
+
+      <View style={{ flexGrow: 1, minWidth: '100%' }}>
+
+        {/* LINHAS */}
+        {registrosFiltrados && registrosFiltrados.length > 0 ? (
+          registrosFiltrados.map((item, index) => (
+            <View
+              key={item.id}
+              style={[
+                styles.row,
+                {
+                  backgroundColor:
+                    index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
+                },
+              ]}
+            >
+
+              <Text style={[styles.cell, { flex: 0.5 }]}>{item.id}</Text>
+              <Text style={[styles.cell, { flex: 2 }]}>{item.cpf_cnpj}</Text>
+              <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
+              <Text style={[styles.cell, { flex: 2 }]}>{item.empresa}</Text>
+
+              {/* ENTRADA */}
+              <TouchableOpacity
+                style={{ flex: 2, minWidth: 160 }}
+                onPress={() => abrirPopupData(item, 'data_entrada')}
+              >
+                <View style={styles.cellCenter}>
+                  {item.data_entrada ? (
+                    <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
+                  ) : (
+                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                  )}
                 </View>
-              ))) : (
-                <Text>Nenhum registro encontrado</Text>
-              )}
+              </TouchableOpacity>
+
+              {/* SAÍDA */}
+              <TouchableOpacity
+                style={{ flex: 2, minWidth: 160 }}
+                onPress={() => abrirPopupData(item, 'data_saida')}
+              >
+                <View style={styles.cellCenter}>
+                  {item.data_saida ? (
+                    <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
+                  ) : (
+                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              <Text style={[styles.cell, { flex: 1.5 }]}>{item.placa}</Text>
+              <Text style={[styles.cell, { flex: 1.5 }]}>{item.destino}</Text>
+              <Text style={[styles.cell, { flex: 2 }]}>{item.atendente}</Text>
+
+              {/* OBS */}
+              <TouchableOpacity
+                onPress={() => alert(item.obs || 'Sem observação')}
+                style={[
+                  styles.cellCenter,
+                  {
+                    flex: 0.8,
+                    backgroundColor: '#007bff',
+                    borderRadius: 6,
+                    marginVertical: 4,
+                    marginHorizontal: 4,
+                  },
+                ]}
+              >
+                <Icon name="sticky-note" size={16} color="#fff" />
+              </TouchableOpacity>
+
             </View>
-          </ScrollView>
-        </ScrollView>
+          ))
+        ) : (
+          <Text style={{ color: '#fff', padding: 10 }}>
+            Nenhum registro encontrado
+          </Text>
+        )}
+
       </View>
+    </ScrollView>
+
+  </ScrollView>
+
+</View>
 
       {/* Modal para selecionar data */}
       {modalVisible && (
@@ -438,7 +474,13 @@ const styles = StyleSheet.create({
   buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
   header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
   headerCell: { width: 120, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 5 },
-  row: { flexDirection: 'row', borderBottomWidth: 1, borderColor: '#ccc', paddingVertical: 5 },
+ row: {
+  flexDirection: 'row',
+  borderBottomWidth: 1,
+  borderBottomColor: '#222',
+  minHeight: 34, // 👈 antes estava maior (ou implícito)
+  alignItems: 'center',
+},
   cell: { width: 120, fontSize: 12, paddingHorizontal: 5, borderRightWidth: 1, color: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   tooltip: {
@@ -464,7 +506,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 1,
   },
-
+cellCenter: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 10,
+  borderRightWidth: 1,
+  borderRightColor: '#222',
+},
   filtrosContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap', // 👈 ESSENCIAL
