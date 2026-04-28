@@ -228,6 +228,12 @@ export default function HomeScreen() {
         <View style={styles.button}>
           <Button title="Visitante" onPress={visitor} />
         </View>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate('Configuracoes')}
+        >
+          <Icon name="settings-outline" size={28} color="#000" />
+        </TouchableOpacity>
       </View>
 
       {/* Filtro */}
@@ -334,7 +340,7 @@ export default function HomeScreen() {
                     <Text style={[styles.cell, { flex: 2 }]}>{item.empresa}</Text>
 
                     <TouchableOpacity
-                      style={{ flex: 2.5}}
+                      style={{ flex: 2.5 }}
                       onPress={() => abrirPopupData(item, 'data_entrada')}
                     >
                       <View style={styles.cellCenter}>
@@ -491,6 +497,9 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: '#fff',
     borderRadius: 1,
+  },
+   iconButton: {
+    padding: 10,
   },
   cellCenter: {
     flex: 1,

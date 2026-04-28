@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "dirceulh.concierge",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "dirceulh.concierge",
@@ -41,7 +45,7 @@
           }
         }
       ],
-       [
+      [
         "expo-build-properties",
         {
           "android": {
