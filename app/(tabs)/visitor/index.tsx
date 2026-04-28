@@ -4,13 +4,13 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
+    Alert,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 
@@ -99,7 +99,7 @@ export default function CadastroScreen() {
 
     try {
       const response = await axios.get(
-        `http://64.181.165.17:3000/buscaVisitantes?search=${clean}`
+        `https://api-concierge.vercel.app/buscaVisitantes?search=${clean}`
       );
 
       const data = response.data ?? [];
@@ -160,7 +160,7 @@ export default function CadastroScreen() {
       if (!form.local) return showMessage('Erro', 'local obrigatório');
 
       const response = await axios.post(
-        'http://64.181.165.17:3000/visitors',
+        'https://api-concierge.vercel.app/visitors',
         form
       );
 

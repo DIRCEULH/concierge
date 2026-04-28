@@ -133,7 +133,7 @@ export default function HomeScreen() {
       const dataMySQL = `${partes[2]}-${partes[1]}-${partes[0]}`;
 
       // Monta URL com data e local
-      let url = `http://64.181.165.17:3000/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
+      let url = `https://api-concierge.vercel.app/visitantes?data_atual=${encodeURIComponent(dataMySQL)}`;
       if (local) {
         url += `&local=${encodeURIComponent(local)}`;
       }
@@ -184,7 +184,7 @@ export default function HomeScreen() {
     const novaDataString = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
 
     try {
-      await fetch(`http://64.181.165.17:3000/visitantes/${selectedRegistro.id}`, {
+      await fetch(`https://api-concierge.vercel.app/visitantes/${selectedRegistro.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [campoData]: novaDataString }),

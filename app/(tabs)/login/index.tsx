@@ -41,7 +41,7 @@ export default function LoginScreen() {
         default:
       }
 
-      const res = await axios.post("http://64.181.165.17:3000/login", {
+      const res = await axios.post("https://api-concierge.vercel.app/login", {
         email,
         password
       });
@@ -81,7 +81,7 @@ export default function LoginScreen() {
       }
 
       const res = await axios.post(
-        "http://64.181.165.17:3000/register",
+        "https://api-concierge.vercel.app/register",
         { user, email, password }
       );
 
