@@ -18,6 +18,8 @@ AsyncStorage (armazenamento local)
 
 Link para baixar o apk e testar: https://drive.google.com/drive/folders/1sa0_nnlEwXqbqB4tFTBbz04zFMeU5QG4?usp=sharing
 
+Acessar aplicação Web: https://concierge-git-main-dirceulhs-projects.vercel.app/
+
 _____________________________________________________________________________________
 
 Copyright (c) 2026 Dirceu Heineck
