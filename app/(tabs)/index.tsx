@@ -119,6 +119,10 @@ export default function HomeScreen() {
     router.replace('/(tabs)/visitor');
   };
 
+  const config = async () => {
+   router.replace('/(tabs)/settings')
+  };
+
   const showMessage = (title: string, message: string) => {
     Platform.OS === 'web' ? alert(`${title}: ${message}`) : Alert.alert(title, message);
   };
@@ -228,12 +232,9 @@ export default function HomeScreen() {
         <View style={styles.button}>
           <Button title="Visitante" onPress={visitor} />
         </View>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => navigation.navigate('Configuracoes')}
-        >
-          <Icon name="settings-outline" size={28} color="#000" />
-        </TouchableOpacity>
+        <View style={styles.iconButton}>
+          <Icon name="cog" size={28} color="#fff" onPress={config} />
+        </View>
       </View>
 
       {/* Filtro */}
@@ -498,8 +499,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 1,
   },
-   iconButton: {
+  iconButton: {
     padding: 10,
+    marginTop: -5
   },
   cellCenter: {
     flex: 1,
