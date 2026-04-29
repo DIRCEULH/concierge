@@ -10,7 +10,6 @@ import {
     View,
 } from 'react-native';
 
-import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 
 type User = {
@@ -98,36 +97,97 @@ export default function UsersScreen() {
             </View>
 
             {/* STATUS */}
-            <View style={styles.editRow}>
-
-                <Picker
-                    style={[
-                        styles.picker,
-                        { color: item.status === 'A' ? 'green' : 'red' }
-                    ]}
-                    selectedValue={item.status}
-                    onValueChange={(value) => updateStatus(item.id, value)}
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 5 }}>
+                <TouchableOpacity
+                    onPress={() => updateStatus(item.id, 'A')}
+                    style={{
+                        flex: 1,
+                        padding: 8,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#007bff',
+                        backgroundColor: item.status === 'A' ? 'green' : 'transparent',
+                    }}
                 >
-                    <Picker.Item label="Ativo" value="A" color="green" />
-                    <Picker.Item label="Inativo" value="I" color="red" />
-                </Picker>
+                    <Text
+                        style={{
 
+                            textAlign: 'center',
+                            color: item.status === 'A' ? '#fff' : 'green',
+                        }}
+                    >
+                        Ativo
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => updateStatus(item.id, 'I')}
+                    style={{
+                        flex: 1,
+                        padding: 8,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#007bff',
+                        backgroundColor: item.status === 'I' ? 'red' : 'transparent',
+                    }}
+                >
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            color: item.status === 'I' ? '#fff' : 'red',
+                        }}
+                    >
+                        Inativo
+                    </Text>
+                </TouchableOpacity>
             </View>
 
             {/* PERMISSÃO */}
-            <View style={styles.editRow}>
-                <Picker
-                     style={[
-                        styles.picker,
-                        { color: item.permissao === 'Admin' ? '#007bff' : 'orange' }
-                    ]}
-                    selectedValue={item.permissao}
-                    onValueChange={(value) => updatePermission(item.id, value)}
+
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 15 }}>
+                <TouchableOpacity
+                    onPress={() => updatePermission(item.id, 'Atendente')}
+                    style={{
+                        flex: 1,
+                        padding: 8,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#007bff',
+                        backgroundColor: item.permissao === 'Atendente' ? '#007bff' : 'transparent',
+                    }}
                 >
-                    <Picker.Item label="Atendente" value="Atendente"  color="red" />
-                    <Picker.Item label="Admin" value="Admin" color="green" />
-                </Picker>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            color: item.permissao === 'Atendente' ? '#fff' : '#007bff',
+                        }}
+                    >
+                        Atendente
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => updatePermission(item.id, 'Admin')}
+                    style={{
+                        flex: 1,
+                        padding: 8,
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        borderColor: '#007bff',
+                        backgroundColor: item.permissao === 'Admin' ? '#007bff' : 'transparent',
+                    }}
+                >
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            color: item.permissao === 'Admin' ? '#fff' : '#007bff',
+                        }}
+                    >
+                        Admin
+                    </Text>
+                </TouchableOpacity>
             </View>
+
 
         </View>
     );
@@ -136,24 +196,70 @@ export default function UsersScreen() {
         <View style={styles.container}>
 
             {/* SEARCH + VOLTAR */}
-            <View style={styles.row}>
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: '#fff',
+                    paddingHorizontal: 10,
+                    paddingVertical: 8,
+                    borderRadius: 12,
+                    gap: 10,
 
-                <View style={styles.searchWrap}>
+                    // sombra leve (Android/iOS)
+                    elevation: 2,
+                    shadowColor: '#000',
+                    shadowOpacity: 0.08,
+                    shadowRadius: 6,
+                    marginTop:35
+                }}
+            >
+
+                {/* SEARCH */}
+                <View
+                    style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: '#f3f4f6',
+                        borderRadius: 10,
+                        paddingHorizontal: 10,
+                        height: 40,
+                    }}
+                >
+                    <Ionicons name="search-outline" size={18} color="#888" />
+
                     <TextInput
                         placeholder="Buscar usuário..."
                         value={search}
                         onChangeText={handleSearch}
-                        style={styles.inputInner}
+                        style={{
+                            flex: 1,
+                            marginLeft: 8,
+                            fontSize: 14,
+                            height:35
+                        }}
                     />
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={start}>
-                    <Ionicons name="arrow-back-outline" size={20} color="#fff" />
-                    <Text style={styles.buttonText}>Voltar</Text>
+                {/* BOTÃO VOLTAR */}
+                <TouchableOpacity
+                    onPress={start}
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: '#111827',
+                        paddingHorizontal: 12,
+                        height: 40,
+                        borderRadius: 10,
+                        gap: 6,
+                    }}
+                >
+                    <Ionicons name="arrow-back-outline" size={18} color="#fff" />
+                    <Text style={{ color: '#fff', fontSize: 13 }}>Voltar</Text>
                 </TouchableOpacity>
 
             </View>
-
             {/* LISTA */}
             {loading ? (
                 <ActivityIndicator size="large" />
@@ -194,18 +300,9 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 6,
         borderColor: '#ccc',
+
     },
 
-    searchWrap: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        flex: 1,
-        backgroundColor: '#fff',
-    },
 
     inputInner: {
         flex: 1,
@@ -213,6 +310,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         borderWidth: 0, // 👈 remove duplicação
         backgroundColor: 'transparent',
+
     },
 
     item: {
@@ -223,6 +321,7 @@ const styles = StyleSheet.create({
 
     info: {
         marginBottom: 5,
+
     },
 
     name: {
@@ -235,13 +334,15 @@ const styles = StyleSheet.create({
     },
 
     editRow: {
-        marginTop: 6,
+        marginTop: 4,
+        borderWidth: 0,
     },
 
     picker: {
-        height: 40,
+        width: '100%',
+        height: 50,
+        backgroundColor: 'transparent',
     },
-
 
     button: {
         flexDirection: 'row',
@@ -250,12 +351,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 10,
         borderRadius: 6,
+        marginTop: 75
     },
 
     buttonText: {
         color: '#fff',
         marginLeft: 5,
         fontWeight: 'bold',
+
     },
 
     empty: {
@@ -273,6 +376,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         flex: 1,
         backgroundColor: '#fff',
+        marginTop: 75
     },
 
 
