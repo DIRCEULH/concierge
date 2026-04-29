@@ -120,7 +120,7 @@ export default function HomeScreen() {
   };
 
   const config = async () => {
-   router.replace('/(tabs)/settings')
+    router.replace('/(tabs)/settings')
   };
 
   const showMessage = (title: string, message: string) => {
@@ -458,6 +458,8 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, marginTop: 40, backgroundColor: '#000' },
