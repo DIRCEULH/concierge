@@ -322,7 +322,7 @@ const syncScroll = (x: number) => {
           <View style={{ flexDirection: 'row', minWidth: 900 }}>
 
         <Text style={[styles.headerCell, { flex: 0.5, textAlign: 'center' }]}>ID</Text>
-        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>CPF/CNPJ</Text>
+        <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>CPF/CNPJ</Text>
         <Text style={[styles.headerCell, { flex: 3, textAlign: 'center' }]}>NOME</Text>
         <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
         <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ENTRADA</Text>
@@ -364,7 +364,7 @@ const syncScroll = (x: number) => {
             >
 
               <Text style={[styles.cell, { flex: 0.5, textAlign: 'center' }]}>{item.id}</Text>
-              <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
+              <Text style={[styles.cell, { flex: 2.5, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
               <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
               <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.empresa}</Text>
 
