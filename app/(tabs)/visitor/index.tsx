@@ -4,13 +4,13 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
 } from 'react-native';
 import { MaskedTextInput } from 'react-native-mask-text';
 
@@ -26,7 +26,9 @@ export default function CadastroScreen() {
       const user = await AsyncStorage.getItem('user');
       if (!user) {
         router.replace('/login');
+        return
       }
+      fetchTipos()
     };
     checkLogin();
   }, []);
@@ -42,6 +44,8 @@ export default function CadastroScreen() {
     atendente: '',
     obs: '',
     local: '',
+    codigo_tipo: '',
+    nome_tipo: ''
   });
 
   type Visitante = {
@@ -49,13 +53,28 @@ export default function CadastroScreen() {
     nome: string;
     empresa: string;
     placa?: string;
+    codigo_tipo: string;
+    nome_tipo: string;
   };
 
   const [busca, setBusca] = useState('');
   const [resultados, setResultados] = useState<Visitante[]>([]);
+  const [tipos, setTipos] = useState<Visitante[]>([]);
 
   const start = async () => {
     router.replace('/(tabs)');
+  };
+
+  const fetchTipos = async () => {
+    try {
+      const res = await fetch('https://api-concierge.vercel.app/visitor_type');
+      const data = await res.json();
+
+      console.log('Dirceu', data)
+      setTipos(data);
+    } catch (err) {
+      console.log('Erro ao buscar tipos:', err);
+    }
   };
 
 
@@ -158,6 +177,7 @@ export default function CadastroScreen() {
       if (!form.placa) return showMessage('Erro', 'placa obrigatório');
       if (!form.destino) return showMessage('Erro', 'destino obrigatório');
       if (!form.local) return showMessage('Erro', 'local obrigatório');
+      if (!form.codigo_tipo) return showMessage('Erro', 'Tipo de Pessoa obrigatório');
 
       const response = await axios.post(
         'https://api-concierge.vercel.app/visitors',
@@ -177,6 +197,8 @@ export default function CadastroScreen() {
         atendente: user,
         obs: '',
         local: '',
+        codigo_tipo: '',
+        nome_tipo: ''
       });
 
       setBusca('');
@@ -188,160 +210,231 @@ export default function CadastroScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Cadastro</Text>
+    <ScrollView contentContainerStyle={styles.scroll}>
+      <View style={styles.formContainer}>
+        <Text style={styles.title}>Cadastro</Text>
 
-      {/* 🔥 INPUT INTELIGENTE */}
-      <View>
+        {/* 🔥 INPUT INTELIGENTE */}
+        <View>
+          <TextInput
+            placeholder="CPF ou CNPJ"
+            value={busca}
+            onChangeText={(text) => {
+              const formatted = formatCpfCnpj(text);
+
+              setBusca(formatted);
+              handleChange('cpf_cnpj', formatted);
+
+              const clean = text.replace(/[^a-zA-Z0-9]/g, '');
+
+              if (clean.length < 3) {
+                setResultados([]);
+                return;
+              }
+
+              buscarVisitantes(clean);
+            }}
+            style={styles.input}
+          />
+
+          {/* 🔥 AUTOCOMPLETE */}
+          {resultados.length > 0 && (
+            <View style={styles.dropdown}>
+              <ScrollView>
+                {resultados.map((item, index) => (
+                  <Text
+                    key={index}
+                    style={styles.item}
+                    onPress={() => {
+                      setResultados([]);
+
+                      const formatted = formatCpfCnpj(item.cpf_cnpj || '');
+
+                      setBusca(formatted);
+
+                      setForm(prev => ({
+                        ...prev,
+                        cpf_cnpj: formatted,
+                        nome: item.nome || '',
+                        empresa: item.empresa || '',
+                        placa: item.placa || '',
+                      }));
+                    }}
+                  >
+                    {item.nome} - {item.empresa} ({item.cpf_cnpj})
+                  </Text>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+
         <TextInput
-          placeholder="CPF ou CNPJ"
-          value={busca}
-          onChangeText={(text) => {
-            const formatted = formatCpfCnpj(text);
-
-            setBusca(formatted);
-            handleChange('cpf_cnpj', formatted);
-
-            // 🔥 busca SEM máscara
-            const clean = text.replace(/[^a-zA-Z0-9]/g, '');
-
-            if (clean.length < 3) {
-              setResultados([]);
-              return;
-            }
-
-            buscarVisitantes(clean);
-          }}
+          placeholder="Nome"
+          value={form.nome}
+          onChangeText={(v) => handleChange('nome', v)}
           style={styles.input}
         />
 
-        {/* 🔥 AUTOCOMPLETE */}
-        {resultados.length > 0 && (
-          <View style={styles.dropdown}>
-            <ScrollView>
-              {resultados.map((item, index) => (
-                <Text
-                  key={index}
-                  style={styles.item}
-                  onPress={() => {
-                    setResultados([]);
+        <TextInput
+          placeholder="Empresa"
+          value={form.empresa}
+          onChangeText={(v) => handleChange('empresa', v)}
+          style={styles.input}
+        />
 
-                    const formatted = formatCpfCnpj(item.cpf_cnpj || '');
+        <MaskedTextInput
+          mask="99/99/9999 99:99"
+          placeholder="Data Entrada"
+          value={form.data_entrada}
+          onChangeText={(v) => handleChange('data_entrada', v)}
+          style={styles.input}
+        />
 
-                    setBusca(formatted);
+        <MaskedTextInput
+          mask="99/99/9999 99:99"
+          placeholder="Data Saída"
+          value={form.data_saida}
+          onChangeText={(v) => handleChange('data_saida', v)}
+          style={styles.input}
+        />
 
-                    setForm(prev => ({
-                      ...prev,
-                      cpf_cnpj: formatted,
-                      nome: item.nome || '',
-                      empresa: item.empresa || '',
-                      placa: item.placa || '',
-                    }));
-                  }}
-                >
-                  {item.nome} - {item.empresa} ({item.cpf_cnpj})
-                </Text>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-      </View>
+        <TextInput
+          placeholder="Placa"
+          value={form.placa}
+          onChangeText={(v) => handleChange('placa', v)}
+          style={styles.input}
+        />
 
-      <TextInput placeholder="Nome" value={form.nome}
-        onChangeText={(v) => handleChange('nome', v)} style={styles.input} />
+        <TextInput
+          placeholder="Destino"
+          value={form.destino}
+          onChangeText={(v) => handleChange('destino', v)}
+          style={styles.input}
+        />
 
-      <TextInput placeholder="Empresa" value={form.empresa}
-        onChangeText={(v) => handleChange('empresa', v)} style={styles.input} />
+        <View style={[styles.input, styles.inputDisabled]}>
+          <Text>{form.atendente}</Text>
+        </View>
 
-      <MaskedTextInput
-        mask="99/99/9999 99:99"
-        placeholder="Data Entrada"
-        value={form.data_entrada}
-        onChangeText={(v) => handleChange('data_entrada', v)}
-        style={styles.input}
-      />
+        <Picker
+          selectedValue={form.local}
+          onValueChange={(itemValue) => handleChange('local', itemValue)}
+          style={styles.input}
+        >
+          <Picker.Item label="Selecione o local..." value="" />
+          <Picker.Item label="MATRIZ" value="MATRIZ" />
+          <Picker.Item label="CD-1" value="CD-1" />
+          <Picker.Item label="CD-2" value="CD-2" />
+          <Picker.Item label="CD-3" value="CD-3" />
+          <Picker.Item label="CD-4" value="CD-4" />
+          <Picker.Item label="FILIAL-1" value="FILIAL-1" />
+          <Picker.Item label="FILIAL-2" value="FILIAL-2" />
+          <Picker.Item label="FILIAL-3" value="FILIAL-3" />
+          <Picker.Item label="FILIAL-4" value="FILIAL-4" />
+        </Picker>
 
-      <MaskedTextInput
-        mask="99/99/9999 99:99"
-        placeholder="Data Saída"
-        value={form.data_saida}
-        onChangeText={(v) => handleChange('data_saida', v)}
-        style={styles.input}
-      />
+        <Picker
+          selectedValue={form.codigo_tipo}
+          onValueChange={(itemValue) => handleChange('codigo_tipo', itemValue)}
+          style={styles.input}
+        >
+          <Picker.Item label="Selecione o tipo..." value="" />
 
-      <TextInput placeholder="Placa" value={form.placa}
-        onChangeText={(v) => handleChange('placa', v)} style={styles.input} />
+          {tipos.map((tipo) => (
+            <Picker.Item
+              key={tipo.codigo_tipo}
+              label={tipo.nome_tipo}
+              value={tipo.codigo_tipo}
+            />
+          ))}
+        </Picker>
 
-      <TextInput placeholder="Destino" value={form.destino}
-        onChangeText={(v) => handleChange('destino', v)} style={styles.input} />
+        <TextInput
+          placeholder="Obs"
+          value={form.obs}
+          onChangeText={(v) => handleChange('obs', v)}
+          style={styles.input}
+          multiline
+        />
 
-      <View style={[styles.input, styles.inputDisabled]}>
-        <Text>{form.atendente}</Text>
-      </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={salvar}>
+            <Ionicons name="save-outline" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Salvar</Text>
+          </TouchableOpacity>
 
-      <Picker
-        selectedValue={form.local}
-        onValueChange={(itemValue) => handleChange('local', itemValue)}
-        style={[styles.input]}
-      >
-        <Picker.Item label="Selecione o local..." value="" />
-        <Picker.Item label="MATRIZ" value="MATRIZ" />
-        <Picker.Item label="CD-1" value="CD-1" />
-        <Picker.Item label="CD-2" value="CD-2" />
-        <Picker.Item label="CD-3" value="CD-3" />
-        <Picker.Item label="CD-4" value="CD-4" />
-        <Picker.Item label="FILIAL-1" value="FILIAL-1" />
-        <Picker.Item label="FILIAL-2" value="FILIAL-2" />
-        <Picker.Item label="FILIAL-3" value="FILIAL-3" />
-        <Picker.Item label="FILIAL-4" value="FILIAL-4" />
-      </Picker>
-
-      <TextInput placeholder="Obs" value={form.obs}
-        onChangeText={(v) => handleChange('obs', v)}
-        style={styles.input} multiline />
-
-      <View style={styles.buttonContainer}>
-
-        <TouchableOpacity style={styles.button} onPress={salvar}>
-          <Ionicons name="save-outline" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Salvar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={start}>
-          <Ionicons name="arrow-back-outline" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Voltar</Text>
-        </TouchableOpacity>
-
+          <TouchableOpacity style={styles.button} onPress={start}>
+            <Ionicons name="arrow-back-outline" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Voltar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#000' },
-  title: { fontSize: 20, color: '#fff', marginBottom: 10 },
-  input: { backgroundColor: '#fff', padding: 10, marginBottom: 5, borderRadius: 5 },
+  // 🔥 controla o comportamento do scroll (ANDROID + WEB)
+  scroll: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingVertical: 20,
+    backgroundColor: '#000',
+  },
+
+  // 🔥 container centralizado com largura limitada
+  formContainer: {
+    width: '90%',
+    maxWidth: 400,
+  },
+
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#000',
+  },
+
+  title: {
+    fontSize: 20,
+    color: '#fff',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    marginBottom: 5,
+    borderRadius: 5,
+  },
+
   dropdown: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    maxHeight: 150
-  },
-  item: {
-    padding: 10,
-    borderBottomWidth: 1
-  },
-  inputDisabled: {
-    backgroundColor: '#eee'
+    maxHeight: 150,
   },
 
-    buttonText: {
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+  },
+
+  inputDisabled: {
+    backgroundColor: '#eee',
+  },
+
+  buttonText: {
     color: '#fff',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
-    buttonContainer: {
+
+  buttonContainer: {
     flexDirection: 'row',
-    gap: 10
+    gap: 10,
+    justifyContent: 'center',
   },
+
   button: {
     flexDirection: 'row',
     alignItems: 'center',

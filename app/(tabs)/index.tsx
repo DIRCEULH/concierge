@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { default as React, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -32,6 +32,7 @@ type Registro = {
   obs: string;
 };
 
+
 export default function HomeScreen() {
   const [registros, setRegistros] = useState<Registro[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,6 +57,15 @@ export default function HomeScreen() {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [campoData, setCampoData] = useState<'data_entrada' | 'data_saida'>('data_saida');
+
+
+  const scrollRef = useRef<ScrollView>(null);
+const headerScrollRef = useRef<ScrollView>(null);
+
+const syncScroll = (x: number) => {
+  headerScrollRef.current?.scrollTo({ x, animated: false });
+};
+
 
   // Carregar último local selecionado do AsyncStorage
   useEffect(() => {
@@ -221,6 +231,7 @@ export default function HomeScreen() {
       </View>
     );
   }
+  
 
   return (
     <View style={styles.container}>
@@ -230,7 +241,7 @@ export default function HomeScreen() {
           <Button title="Logout" onPress={logout} />
         </View>
         <View style={styles.button}>
-          <Button title="Visitante" onPress={visitor} />
+          <Button title="Visitantes" onPress={visitor} />
         </View>
         <View style={styles.iconButton}>
           <Icon name="cog" size={28} color="#fff" onPress={config} />
@@ -293,103 +304,116 @@ export default function HomeScreen() {
 
       </View>
 
-      {/* Tabela */}
-      <View style={{ flex: 1, width: '100%', backgroundColor: '#000' }}>
 
-        {/* SCROLL VERTICAL (sticky header funciona aqui) */}
-        <ScrollView style={{ flex: 1 }}>
 
-          {/* SCROLL HORIZONTAL (HEADER + LINHAS JUNTOS) */}
-          <ScrollView
-            horizontal
-            contentContainerStyle={{ minWidth: '100%' }}
-          >
 
-            <View style={{ minWidth: '100%' }}>
+{/* TABELA */}
+<View style={{ flex: 1, backgroundColor: '#000' }}>
 
-              {/* HEADER (AGORA ACOMPANHA O SCROLL HORIZONTAL) */}
-              <View style={[styles.header, { flexDirection: 'row' }]}>
-                <Text style={[styles.headerCell, { flex: 0.5 }]}>ID</Text>
-                <Text style={[styles.headerCell, { flex: 2 }]}>CPF/CNPJ</Text>
-                <Text style={[styles.headerCell, { flex: 3 }]}>NOME</Text>
-                <Text style={[styles.headerCell, { flex: 2 }]}>EMPRESA</Text>
-                <Text style={[styles.headerCell, { flex: 2 }]}>ENTRADA</Text>
-                <Text style={[styles.headerCell, { flex: 2 }]}>SAÍDA</Text>
-                <Text style={[styles.headerCell, { flex: 1.5 }]}>PLACA</Text>
-                <Text style={[styles.headerCell, { flex: 1.5 }]}>DESTINO</Text>
-                <Text style={[styles.headerCell, { flex: 2 }]}>ATENDENTE</Text>
-                <Text style={[styles.headerCell, { flex: 1 }]}>OBS</Text>
-              </View>
+  {/* HEADER FIXO NA VERTICAL */}
+  <View style={styles.header}>
+    <ScrollView
+      horizontal
+      ref={headerScrollRef}
+      scrollEnabled={false} // 🔥 importante: header não controla scroll sozinho
+      showsHorizontalScrollIndicator={false}
+       contentContainerStyle={{ minWidth: 900 }}
+    >
+          <View style={{ flexDirection: 'row', minWidth: 900 }}>
 
-              {/* LINHAS */}
-              {registrosFiltrados?.length > 0 ? (
-                registrosFiltrados.map((item, index) => (
-                  <View
-                    key={item.id}
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: 'row',
-                        backgroundColor: index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
-                      },
-                    ]}
-                  >
+        <Text style={[styles.headerCell, { flex: 0.5, textAlign: 'center' }]}>ID</Text>
+        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>CPF/CNPJ</Text>
+        <Text style={[styles.headerCell, { flex: 3, textAlign: 'center' }]}>NOME</Text>
+        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
+        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ENTRADA</Text>
+        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>SAÍDA</Text>
+        <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>PLACA</Text>
+        <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>DESTINO</Text>
+        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ATENDENTE</Text>
+        <Text style={[styles.headerCell, { flex: 2.5 }]}>OBSERVAÇÃO</Text>
 
-                    <Text style={[styles.cell, { flex: 0.5 }]}>{item.id}</Text>
-                    <Text style={[styles.cell, { flex: 2 }]}>{item.cpf_cnpj}</Text>
-                    <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
-                    <Text style={[styles.cell, { flex: 2 }]}>{item.empresa}</Text>
+      </View>
+    </ScrollView>
+  </View>
 
-                    <TouchableOpacity
-                      style={{ flex: 2.5 }}
-                      onPress={() => abrirPopupData(item, 'data_entrada')}
-                    >
-                      <View style={styles.cellCenter}>
-                        {item.data_entrada ? (
-                          <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
-                        ) : (
-                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
+  {/* BODY */}
+  <ScrollView style={{ flex: 1 }}>
 
-                    <TouchableOpacity
-                      style={{ flex: 2.5 }}
-                      onPress={() => abrirPopupData(item, 'data_saida')}
-                    >
-                      <View style={styles.cellCenter}>
-                        {item.data_saida ? (
-                          <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
-                        ) : (
-                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
+    <ScrollView
+      horizontal
+      ref={scrollRef}
+      bounces={false}
+      showsHorizontalScrollIndicator={false}
+      onScroll={(e) => syncScroll(e.nativeEvent.contentOffset.x)} // 🔥 sincroniza header
+      scrollEventThrottle={16}
+    >
 
-                    <Text style={[styles.cell, { flex: 1.5 }]}>{item.placa}</Text>
-                    <Text style={[styles.cell, { flex: 1.5 }]}>{item.destino}</Text>
-                    <Text style={[styles.cell, { flex: 2 }]}>{item.atendente}</Text>
+      <View>
 
-                    <TouchableOpacity
-                      onPress={() => alert(item.obs || 'Sem observação')}
-                      style={[styles.cellCenter, { flex: 1, backgroundColor: '#007bff' }]}
-                    >
-                      <Icon name="sticky-note" size={16} color="#fff" />
-                    </TouchableOpacity>
+        {registrosFiltrados?.length > 0 ? (
+          registrosFiltrados.map((item, index) => (
+            <View
+              key={item.id}
+              style={[
+                styles.row,
+                {
+                  flexDirection: 'row',
+                  backgroundColor: index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
+                },
+              ]}
+            >
 
-                  </View>
-                ))
-              ) : (
-                <Text style={{ color: '#fff', padding: 10 }}>
-                  Nenhum registro encontrado
-                </Text>
-              )}
+              <Text style={[styles.cell, { flex: 0.5, textAlign: 'center' }]}>{item.id}</Text>
+              <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
+              <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
+              <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.empresa}</Text>
+
+              <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_entrada')}>
+                <View style={styles.cellCenter}>
+                  {item.data_entrada ? (
+                    <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
+                  ) : (
+                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_saida')}>
+                <View style={styles.cellCenter}>
+                  {item.data_saida ? (
+                    <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
+                  ) : (
+                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.placa}</Text>
+              <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.destino}</Text>
+              <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.atendente}</Text>
+
+              <TouchableOpacity
+                onPress={() => alert(item.obs || 'Sem observação')}
+                style={[styles.cellCenter, { flex: 1, backgroundColor: '#007bff' }]}
+              >
+                <Icon name="sticky-note" size={16} color="#fff" />
+              </TouchableOpacity>
 
             </View>
-          </ScrollView>
+          ))
+        ) : (
+          <Text style={{ color: '#fff', padding: 10 }}>
+            Nenhum registro encontrado
+          </Text>
+        )}
 
-        </ScrollView>
       </View>
+
+    </ScrollView>
+
+  </ScrollView>
+</View>
+
 
 
 
