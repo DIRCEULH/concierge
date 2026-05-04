@@ -323,7 +323,7 @@ const syncScroll = (x: number) => {
 
         <Text style={[styles.headerCell, { flex: 0.5, textAlign: 'center' }]}>ID</Text>
         <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>CPF/CNPJ</Text>
-        <Text style={[styles.headerCell, { flex: 3, textAlign: 'center' }]}>NOME</Text>
+        <Text style={[styles.headerCell, { flex: 4, textAlign: 'center' }]}>NOME</Text>
         <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
         <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>ENTRADA</Text>
         <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>SAÍDA</Text>
@@ -365,7 +365,7 @@ const syncScroll = (x: number) => {
 
               <Text style={[styles.cell, { flex: 0.5, textAlign: 'center' }]}>{item.id}</Text>
               <Text style={[styles.cell, { flex: 2.5, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
-              <Text style={[styles.cell, { flex: 3 }]}>{item.nome}</Text>
+              <Text style={[styles.cell, { flex: 4 }]}>{item.nome}</Text>
               <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.empresa}</Text>
 
               <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_entrada')}>
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
   button: { flex: 1, marginHorizontal: 1 },
   buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
   header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
-  headerCell: { width: 120, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 5 },
+  headerCell: { width: 125,height: 15, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 10 , borderRightWidth: 2,   borderRightColor: '#222'},
   row: {
     flexDirection: 'row',
     borderBottomWidth: 1,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     minHeight: 34, // 👈 antes estava maior (ou implícito)
     alignItems: 'center',
   },
-  cell: { width: 120, fontSize: 12, paddingHorizontal: 5, borderRightWidth: 1, color: '#fff' },
+  cell: { width: 152, fontSize: 12, paddingHorizontal: 10, borderRightWidth: 1, color: '#fff',  borderRightColor: '#222',},
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   tooltip: {
     position: 'absolute',
@@ -533,8 +533,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    borderRightWidth: 1,
+    padding:10,
+    borderRightWidth: 2,
     borderRightColor: '#222',
   },
   filtrosContainer: {
