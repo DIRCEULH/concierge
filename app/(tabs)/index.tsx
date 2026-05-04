@@ -325,8 +325,8 @@ const syncScroll = (x: number) => {
         <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>CPF/CNPJ</Text>
         <Text style={[styles.headerCell, { flex: 3, textAlign: 'center' }]}>NOME</Text>
         <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
-        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ENTRADA</Text>
-        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>SAÍDA</Text>
+        <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>ENTRADA</Text>
+        <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>SAÍDA</Text>
         <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>PLACA</Text>
         <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>DESTINO</Text>
         <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ATENDENTE</Text>
