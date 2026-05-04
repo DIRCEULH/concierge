@@ -218,6 +218,7 @@ export default function CadastroScreen() {
         <View>
           <TextInput
             placeholder="CPF ou CNPJ"
+            placeholderTextColor="#000"
             value={busca}
             onChangeText={(text) => {
               const formatted = formatCpfCnpj(text);
@@ -271,6 +272,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Nome"
+          placeholderTextColor="#000"
           value={form.nome}
           onChangeText={(v) => handleChange('nome', v)}
           style={styles.input}
@@ -278,6 +280,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Empresa"
+          placeholderTextColor="#000"
           value={form.empresa}
           onChangeText={(v) => handleChange('empresa', v)}
           style={styles.input}
@@ -286,6 +289,7 @@ export default function CadastroScreen() {
         <MaskedTextInput
           mask="99/99/9999 99:99"
           placeholder="Data Entrada"
+          placeholderTextColor="#000"
           value={form.data_entrada}
           onChangeText={(v) => handleChange('data_entrada', v)}
           style={styles.input}
@@ -294,6 +298,7 @@ export default function CadastroScreen() {
         <MaskedTextInput
           mask="99/99/9999 99:99"
           placeholder="Data Saída"
+          placeholderTextColor="#000"
           value={form.data_saida}
           onChangeText={(v) => handleChange('data_saida', v)}
           style={styles.input}
@@ -301,6 +306,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Placa"
+          placeholderTextColor="#000"
           value={form.placa}
           onChangeText={(v) => handleChange('placa', v)}
           style={styles.input}
@@ -308,6 +314,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Destino"
+          placeholderTextColor="#000"
           value={form.destino}
           onChangeText={(v) => handleChange('destino', v)}
           style={styles.input}
@@ -352,6 +359,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Obs"
+          placeholderTextColor="#000"
           value={form.obs}
           onChangeText={(v) => handleChange('obs', v)}
           style={styles.input}
@@ -407,6 +415,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 5,
     borderRadius: 5,
+    color: '#000'
   },
 
   dropdown: {
