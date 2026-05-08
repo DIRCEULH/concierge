@@ -49,7 +49,12 @@ export default function LoginScreen() {
       await AsyncStorage.setItem(
         'user',
         JSON.stringify(res.data.result[0].user)
-      );
+      )
+
+      await AsyncStorage.setItem(
+        'permissao',
+        JSON.stringify(res.data.result[0].permissao)
+      )
 
       router.replace('/(tabs)');
 

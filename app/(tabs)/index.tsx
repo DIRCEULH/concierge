@@ -54,17 +54,18 @@ export default function HomeScreen() {
   // Modal e picker
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRegistro, setSelectedRegistro] = useState<Registro | null>(null);
+  const [permissao, setPermissao] = useState("");
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [campoData, setCampoData] = useState<'data_entrada' | 'data_saida'>('data_saida');
 
 
   const scrollRef = useRef<ScrollView>(null);
-const headerScrollRef = useRef<ScrollView>(null);
+  const headerScrollRef = useRef<ScrollView>(null);
 
-const syncScroll = (x: number) => {
-  headerScrollRef.current?.scrollTo({ x, animated: false });
-};
+  const syncScroll = (x: number) => {
+    headerScrollRef.current?.scrollTo({ x, animated: false });
+  };
 
 
   // Carregar último local selecionado do AsyncStorage
@@ -90,6 +91,11 @@ const syncScroll = (x: number) => {
   // Verifica login
   useEffect(() => {
     const checkLogin = async () => {
+      const permissao = await AsyncStorage.getItem('permissao')
+      if (permissao) {
+        setPermissao(JSON.parse(permissao));
+      }
+
       const user = await AsyncStorage.getItem('user');
       if (!user) router.replace('/login');
     };
@@ -166,6 +172,22 @@ const syncScroll = (x: number) => {
     }
   };
 
+
+  const excluirVisitante = async (id: number) => {
+    try {
+      await fetch(
+        `https://api-concierge.vercel.app/excluirVisitante/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+      fetchRegistros(filtroData, filtroLocal);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // Abre popup para inserir data_entrada ou data_saida
   const abrirPopupData = (
     item: Registro,
@@ -231,7 +253,9 @@ const syncScroll = (x: number) => {
       </View>
     );
   }
-  
+
+
+  const isAdmin = permissao == "Admin";
 
   return (
     <View style={styles.container}>
@@ -244,7 +268,10 @@ const syncScroll = (x: number) => {
           <Button title="Visitantes" onPress={visitor} />
         </View>
         <View style={styles.iconButton}>
-          <Icon name="cog" size={28} color="#fff" onPress={config} />
+          <Icon name="cog" size={28} color="#fff" onPress={isAdmin ? config : undefined}
+            style={{
+              opacity: isAdmin ? 1 : 0.4,
+            }} />
         </View>
       </View>
 
@@ -307,112 +334,124 @@ const syncScroll = (x: number) => {
 
 
 
-{/* TABELA */}
-<View style={{ flex: 1, backgroundColor: '#000' }}>
+      {/* TABELA */}
+      <View style={{ flex: 1, backgroundColor: '#000' }}>
 
-  {/* HEADER FIXO NA VERTICAL */}
-  <View style={styles.header}>
-    <ScrollView
-      horizontal
-      ref={headerScrollRef}
-      scrollEnabled={false} // 🔥 importante: header não controla scroll sozinho
-      showsHorizontalScrollIndicator={false}
-       contentContainerStyle={{ minWidth: 900 }}
-    >
-          <View style={{ flexDirection: 'row', minWidth: 900 }}>
+        {/* HEADER FIXO NA VERTICAL */}
+        <View style={styles.header}>
+          <ScrollView
+            horizontal
+            ref={headerScrollRef}
+            scrollEnabled={false} // 🔥 importante: header não controla scroll sozinho
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ minWidth: 900 }}
+          >
+            <View style={{ flexDirection: 'row', minWidth: 900 }}>
 
-        <Text style={[styles.headerCell, { flex: 0.5, textAlign: 'center' }]}>ID</Text>
-        <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>CPF/CNPJ</Text>
-        <Text style={[styles.headerCell, { flex: 4, textAlign: 'center' }]}>NOME</Text>
-        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
-        <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>ENTRADA</Text>
-        <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>SAÍDA</Text>
-        <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>PLACA</Text>
-        <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>DESTINO</Text>
-        <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ATENDENTE</Text>
-        <Text style={[styles.headerCell, { flex: 2.5 }]}>OBSERVAÇÃO</Text>
-
-      </View>
-    </ScrollView>
-  </View>
-
-  {/* BODY */}
-  <ScrollView style={{ flex: 1 }}>
-
-    <ScrollView
-      horizontal
-      ref={scrollRef}
-      bounces={false}
-      showsHorizontalScrollIndicator={false}
-      onScroll={(e) => syncScroll(e.nativeEvent.contentOffset.x)} // 🔥 sincroniza header
-      scrollEventThrottle={16}
-    >
-
-      <View>
-
-        {registrosFiltrados?.length > 0 ? (
-          registrosFiltrados.map((item, index) => (
-            <View
-              key={item.id}
-              style={[
-                styles.row,
-                {
-                  flexDirection: 'row',
-                  backgroundColor: index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
-                },
-              ]}
-            >
-
-              <Text style={[styles.cell, { flex: 0.5, textAlign: 'center' }]}>{item.id}</Text>
-              <Text style={[styles.cell, { flex: 2.5, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
-              <Text style={[styles.cell, { flex: 4 }]}>{item.nome}</Text>
-              <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.empresa}</Text>
-
-              <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_entrada')}>
-                <View style={styles.cellCenter}>
-                  {item.data_entrada ? (
-                    <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
-                  ) : (
-                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                  )}
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_saida')}>
-                <View style={styles.cellCenter}>
-                  {item.data_saida ? (
-                    <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
-                  ) : (
-                    <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                  )}
-                </View>
-              </TouchableOpacity>
-
-              <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.placa}</Text>
-              <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.destino}</Text>
-              <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.atendente}</Text>
-
-              <TouchableOpacity
-                onPress={() => alert(item.obs || 'Sem observação')}
-                style={[styles.cellCenter, { flex: 1, backgroundColor: '#007bff' }]}
-              >
-                <Icon name="sticky-note" size={16} color="#fff" />
-              </TouchableOpacity>
+              <Text style={[styles.headerCell, { flex: 0.5, textAlign: 'center' }]}>ID</Text>
+              <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>CPF/CNPJ</Text>
+              <Text style={[styles.headerCell, { flex: 4, textAlign: 'center' }]}>NOME</Text>
+              <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
+              <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>ENTRADA</Text>
+              <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>SAÍDA</Text>
+              <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>PLACA</Text>
+              <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>DESTINO</Text>
+              <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ATENDENTE</Text>
+              <Text style={[styles.headerCell, { flex: 2.5 }]}>OBSERVAÇÃO</Text>
+              <Text style={[styles.headerCell, { flex: 2.5 }]}>AÇÕES</Text>
 
             </View>
-          ))
-        ) : (
-          <Text style={{ color: '#fff', padding: 10 }}>
-            Nenhum registro encontrado
-          </Text>
-        )}
+          </ScrollView>
+        </View>
 
+        {/* BODY */}
+        <ScrollView style={{ flex: 1 }}>
+
+          <ScrollView
+            horizontal
+            ref={scrollRef}
+            bounces={false}
+            showsHorizontalScrollIndicator={false}
+            onScroll={(e) => syncScroll(e.nativeEvent.contentOffset.x)} // 🔥 sincroniza header
+            scrollEventThrottle={16}
+          >
+
+            <View>
+
+              {registrosFiltrados?.length > 0 ? (
+                registrosFiltrados.map((item, index) => (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.row,
+                      {
+                        flexDirection: 'row',
+                        backgroundColor: index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
+                      },
+                    ]}
+                  >
+
+                    <Text style={[styles.cell, { flex: 0.5, textAlign: 'center' }]}>{item.id}</Text>
+                    <Text style={[styles.cell, { flex: 2.5, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
+                    <Text style={[styles.cell, { flex: 4 }]}>{item.nome}</Text>
+                    <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.empresa}</Text>
+
+                    <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_entrada')}>
+                      <View style={styles.cellCenter}>
+                        {item.data_entrada ? (
+                          <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
+                        ) : (
+                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_saida')}>
+                      <View style={styles.cellCenter}>
+                        {item.data_saida ? (
+                          <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
+                        ) : (
+                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+
+                    <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.placa}</Text>
+                    <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.destino}</Text>
+                    <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.atendente}</Text>
+
+                    <TouchableOpacity
+                      onPress={() => alert(item.obs || 'Sem observação')}
+                      style={[styles.cellCenter, { flex: 1, backgroundColor: '#007bff' }]}
+                    >
+                      <Icon name="sticky-note" size={16} color="#fff" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      disabled={!isAdmin}
+                      onPress={() => excluirVisitante(item.id)}
+                      style={[styles.cellCenter, {
+                        flex: 1,
+                        opacity: isAdmin ? 1 : 0.4,
+                        marginLeft: 10,
+                      }]}
+                    >
+                      <Icon name="trash" size={24} color="red" />
+                    </TouchableOpacity>
+
+                  </View>
+                ))
+              ) : (
+                <Text style={{ color: '#fff', padding: 10 }}>
+                  Nenhum registro encontrado
+                </Text>
+              )}
+
+            </View>
+
+          </ScrollView>
+
+        </ScrollView>
       </View>
-
-    </ScrollView>
-
-  </ScrollView>
-</View>
 
 
 
@@ -492,7 +531,7 @@ const styles = StyleSheet.create({
   button: { flex: 1, marginHorizontal: 1 },
   buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
   header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
-  headerCell: { width: 125,height: 15, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 10 , borderRightWidth: 2,   borderRightColor: '#222'},
+  headerCell: { width: 125, height: 15, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 10, borderRightWidth: 2, borderRightColor: '#222' },
   row: {
     flexDirection: 'row',
     borderBottomWidth: 1,
@@ -500,7 +539,7 @@ const styles = StyleSheet.create({
     minHeight: 34, // 👈 antes estava maior (ou implícito)
     alignItems: 'center',
   },
-  cell: { width: 152, fontSize: 12, paddingHorizontal: 10, borderRightWidth: 1, color: '#fff',  borderRightColor: '#222',},
+  cell: { width: 152, fontSize: 12, paddingHorizontal: 10, borderRightWidth: 1, color: '#fff', borderRightColor: '#222', },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   tooltip: {
     position: 'absolute',
@@ -533,7 +572,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding:10,
+    padding: 10,
     borderRightWidth: 2,
     borderRightColor: '#222',
   },
