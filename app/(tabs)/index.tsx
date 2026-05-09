@@ -65,7 +65,15 @@ export default function HomeScreen() {
 
   const syncScroll = (x: number) => {
     headerScrollRef.current?.scrollTo({ x, animated: false });
-  };
+  }
+
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+
+  const [formEdit, setFormEdit] = useState({
+    data_entrada: '',
+    data_saida: '',
+    destino: '',
+  })
 
 
   // Carregar último local selecionado do AsyncStorage
@@ -188,6 +196,34 @@ export default function HomeScreen() {
     }
   };
 
+  const atualizarVisitante = async (
+    id: number,
+    data_entrada: string,
+    data_saida: string,
+    destino: string
+  ) => {
+    try {
+      await fetch(
+        `https://api-concierge.vercel.app/atualizarVisitante/${id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data_entrada,
+            data_saida,
+            destino,
+          }),
+        }
+      )
+
+      fetchRegistros(filtroData, filtroLocal);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   // Abre popup para inserir data_entrada ou data_saida
   const abrirPopupData = (
     item: Registro,
@@ -255,7 +291,7 @@ export default function HomeScreen() {
   }
 
 
-  const isAdmin = permissao == "Admin";
+  const isAdmin = permissao == "Admin"
 
   return (
     <View style={styles.container}>
@@ -337,30 +373,70 @@ export default function HomeScreen() {
       {/* TABELA */}
       <View style={{ flex: 1, backgroundColor: '#000' }}>
 
-        {/* HEADER FIXO NA VERTICAL */}
+        {/* HEADER */}
         <View style={styles.header}>
           <ScrollView
             horizontal
             ref={headerScrollRef}
-            scrollEnabled={false} // 🔥 importante: header não controla scroll sozinho
+            scrollEnabled={false}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ minWidth: 900 }}
+            contentContainerStyle={{ minWidth: 1100 }}
           >
-            <View style={{ flexDirection: 'row', minWidth: 900 }}>
 
-              <Text style={[styles.headerCell, { flex: 0.5, textAlign: 'center' }]}>ID</Text>
-              <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>CPF/CNPJ</Text>
-              <Text style={[styles.headerCell, { flex: 4, textAlign: 'center' }]}>NOME</Text>
-              <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>EMPRESA</Text>
-              <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>ENTRADA</Text>
-              <Text style={[styles.headerCell, { flex: 2.5, textAlign: 'center' }]}>SAÍDA</Text>
-              <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>PLACA</Text>
-              <Text style={[styles.headerCell, { flex: 1.5, textAlign: 'center' }]}>DESTINO</Text>
-              <Text style={[styles.headerCell, { flex: 2, textAlign: 'center' }]}>ATENDENTE</Text>
-              <Text style={[styles.headerCell, { flex: 2.5 }]}>OBSERVAÇÃO</Text>
-              <Text style={[styles.headerCell, { flex: 2.5 }]}>AÇÕES</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                minWidth: 1100,
+                alignItems: 'center',
+              }}
+            >
+
+              <View style={[styles.tableCell, { flex: 0.5 }]}>
+                <Text style={styles.headerText}>ID</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 1.5 }]}>
+                <Text style={styles.headerText}>CPF/CNPJ</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 3 }]}>
+                <Text style={styles.headerText}>NOME</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 1.5 }]}>
+                <Text style={styles.headerText}>EMPRESA</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 2.5 }]}>
+                <Text style={styles.headerText}>ENTRADA</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 2.5 }]}>
+                <Text style={styles.headerText}>SAÍDA</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 1.5 }]}>
+                <Text style={styles.headerText}>PLACA</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 1.5 }]}>
+                <Text style={styles.headerText}>DESTINO</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 2 }]}>
+                <Text style={styles.headerText}>ATENDENTE</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 1.5 }]}>
+                <Text style={styles.headerText}>OBS</Text>
+              </View>
+
+              <View style={[styles.tableCell, { flex: 2.5 }]}>
+                <Text style={styles.headerText}>AÇÕES</Text>
+              </View>
 
             </View>
+
           </ScrollView>
         </View>
 
@@ -372,73 +448,297 @@ export default function HomeScreen() {
             ref={scrollRef}
             bounces={false}
             showsHorizontalScrollIndicator={false}
-            onScroll={(e) => syncScroll(e.nativeEvent.contentOffset.x)} // 🔥 sincroniza header
+            onScroll={(e) =>
+              syncScroll(e.nativeEvent.contentOffset.x)
+            }
             scrollEventThrottle={16}
           >
 
-            <View>
+            <View style={{ minWidth: 1100 }}>
 
               {registrosFiltrados?.length > 0 ? (
                 registrosFiltrados.map((item, index) => (
+
                   <View
                     key={item.id}
                     style={[
                       styles.row,
                       {
                         flexDirection: 'row',
-                        backgroundColor: index % 2 === 0 ? '#0d0d0d' : '#1a1a1a',
+                        alignItems: 'center',
+                        backgroundColor:
+                          index % 2 === 0
+                            ? '#0d0d0d'
+                            : '#1a1a1a',
                       },
                     ]}
                   >
 
-                    <Text style={[styles.cell, { flex: 0.5, textAlign: 'center' }]}>{item.id}</Text>
-                    <Text style={[styles.cell, { flex: 2.5, textAlign: 'center' }]}>{item.cpf_cnpj}</Text>
-                    <Text style={[styles.cell, { flex: 4 }]}>{item.nome}</Text>
-                    <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.empresa}</Text>
-
-                    <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_entrada')}>
-                      <View style={styles.cellCenter}>
-                        {item.data_entrada ? (
-                          <Text style={{ color: '#fff' }}>{item.data_entrada}</Text>
-                        ) : (
-                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: 2.5 }} onPress={() => abrirPopupData(item, 'data_saida')}>
-                      <View style={styles.cellCenter}>
-                        {item.data_saida ? (
-                          <Text style={{ color: '#fff' }}>{item.data_saida}</Text>
-                        ) : (
-                          <Ionicons name="calendar-outline" size={20} color="#007bff" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-
-                    <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.placa}</Text>
-                    <Text style={[styles.cell, { flex: 1.5, textAlign: 'center' }]}>{item.destino}</Text>
-                    <Text style={[styles.cell, { flex: 2, textAlign: 'center' }]}>{item.atendente}</Text>
-
-                    <TouchableOpacity
-                      onPress={() => alert(item.obs || 'Sem observação')}
-                      style={[styles.cellCenter, { flex: 1, backgroundColor: '#007bff' }]}
+                    {/* ID */}
+                    <View
+                      style={[styles.tableCell, { flex: 0.5 }]}
                     >
-                      <Icon name="sticky-note" size={16} color="#fff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      disabled={!isAdmin}
-                      onPress={() => excluirVisitante(item.id)}
-                      style={[styles.cellCenter, {
-                        flex: 1,
-                        opacity: isAdmin ? 1 : 0.4,
-                        marginLeft: 10,
-                      }]}
+                      <Text style={styles.cellText}>
+                        {item.id}
+                      </Text>
+                    </View>
+
+                    {/* CPF */}
+                    <View
+                      style={[styles.tableCell, { flex: 1.5 }]}
                     >
-                      <Icon name="trash" size={24} color="red" />
-                    </TouchableOpacity>
+                      <Text style={styles.cellText}>
+                        {item.cpf_cnpj}
+                      </Text>
+                    </View>
+
+                    {/* NOME */}
+                    <View
+                      style={[styles.tableCell, { flex: 3 }]}
+                    >
+                      <Text style={styles.cellText}>
+                        {item.nome}
+                      </Text>
+                    </View>
+
+                    {/* EMPRESA */}
+                    <View
+                      style={[styles.tableCell, { flex: 1.5 }]}
+                    >
+                      <Text style={styles.cellText}>
+                        {item.empresa}
+                      </Text>
+                    </View>
+
+                    {/* ENTRADA */}
+                    <View
+                      style={[styles.tableCell, { flex: 2.5 }]}
+                    >
+
+                      {editandoId === item.id ? (
+
+                        <MaskedTextInput
+                          mask="99/99/9999 99:99"
+                          placeholder="Entrada"
+                          placeholderTextColor="#999"
+                          value={formEdit.data_entrada}
+                          onChangeText={(text) =>
+                            setFormEdit({
+                              ...formEdit,
+                              data_entrada: text,
+                            })
+                          }
+                          keyboardType="numeric"
+                          style={styles.tableInput}
+                        />
+
+                      ) : (
+
+                        <Text style={styles.cellText}>
+                          {item.data_entrada}
+                        </Text>
+
+                      )}
+
+                    </View>
+
+                    {/* SAÍDA */}
+                    <View
+                      style={[styles.tableCell, { flex: 2.5 }]}
+                    >
+
+                      {editandoId === item.id ? (
+
+                        <MaskedTextInput
+                          mask="99/99/9999 99:99"
+                          placeholder="Saída"
+                          placeholderTextColor="#999"
+                          value={formEdit.data_saida}
+                          onChangeText={(text) =>
+                            setFormEdit({
+                              ...formEdit,
+                              data_saida: text,
+                            })
+                          }
+                          keyboardType="numeric"
+                          style={styles.tableInput}
+                        />
+
+                      ) : (
+
+                        <Text style={styles.cellText}>
+                          {item.data_saida}
+                        </Text>
+
+                      )}
+
+                    </View>
+
+                    {/* PLACA */}
+                    <View
+                      style={[styles.tableCell, { flex: 1.5 }]}
+                    >
+                      <Text style={styles.cellText}>
+                        {item.placa}
+                      </Text>
+                    </View>
+
+                    {/* DESTINO */}
+                    <View
+                      style={[styles.tableCell, { flex: 1.5 }]}
+                    >
+
+                      {editandoId === item.id ? (
+
+                        <TextInput
+                          value={formEdit.destino}
+                          onChangeText={(text) =>
+                            setFormEdit({
+                              ...formEdit,
+                              destino: text,
+                            })
+                          }
+                          style={styles.tableInput}
+                        />
+
+                      ) : (
+
+                        <Text style={styles.cellText}>
+                          {item.destino}
+                        </Text>
+
+                      )}
+
+                    </View>
+
+                    {/* ATENDENTE */}
+                    <View
+                      style={[styles.tableCell, { flex: 2 }]}
+                    >
+                      <Text style={styles.cellText}>
+                        {item.atendente}
+                      </Text>
+                    </View>
+
+                    {/* OBS */}
+                    <View
+                      style={[styles.tableCell, { flex: 1.5 }]}
+                    >
+
+                      <TouchableOpacity
+                        onPress={() =>
+                          showMessage(
+                            'Observação',
+                            item.obs || 'Sem observação'
+                          )
+                        }
+                      >
+                        <Icon
+                          name="sticky-note"
+                          size={18}
+                          color="#fff"
+                        />
+                      </TouchableOpacity>
+
+                    </View>
+
+                    {/* AÇÕES */}
+                    <View
+                      style={[
+                        styles.tableCell,
+                        {
+                          flex: 2.5,
+                          flexDirection: 'row',
+                          justifyContent: 'space-evenly',
+                        },
+                      ]}
+                    >
+
+                      {/* DELETE */}
+                      <TouchableOpacity
+                        disabled={!isAdmin}
+                        onPress={() =>
+                          excluirVisitante(item.id)
+                        }
+                        style={{
+                          opacity: isAdmin ? 1 : 0.4,
+                        }}
+                      >
+                        <Icon
+                          name="trash"
+                          size={22}
+                          color="red"
+                        />
+                      </TouchableOpacity>
+
+                      {/* EDIT */}
+                      <TouchableOpacity
+                        disabled={!isAdmin}
+                        onPress={() => {
+
+                          setEditandoId(item.id);
+
+                          setFormEdit({
+                            data_entrada:
+                              item.data_entrada,
+                            data_saida:
+                              item.data_saida,
+                            destino: item.destino,
+                          });
+
+                        }}
+                        style={{
+                          opacity: isAdmin ? 1 : 0.4,
+                        }}
+                      >
+                        <Icon
+                          name="pencil"
+                          size={22}
+                          color="blue"
+                        />
+                      </TouchableOpacity>
+
+                      {/* SAVE */}
+                      {editandoId === item.id && (
+                        <TouchableOpacity
+                          onPress={() => {
+
+                            atualizarVisitante(
+                              item.id,
+                              formEdit.data_entrada,
+                              formEdit.data_saida,
+                              formEdit.destino
+                            );
+
+                            setEditandoId(null);
+
+                          }}
+                        >
+                          <Icon
+                            name="check"
+                            size={22}
+                            color="green"
+                          />
+                        </TouchableOpacity>
+                      )}
+
+                      {/* CANCELAR EDIÇÃO */}
+                      {editandoId === item.id && (
+                        <TouchableOpacity
+                          onPress={() => setEditandoId(null)}
+                        >
+                          <Icon
+                            name="times"
+                            size={22}
+                            color="orange"
+                          />
+                        </TouchableOpacity>
+                      )}
+
+                    </View>
 
                   </View>
+
                 ))
               ) : (
                 <Text style={{ color: '#fff', padding: 10 }}>
@@ -451,6 +751,7 @@ export default function HomeScreen() {
           </ScrollView>
 
         </ScrollView>
+
       </View>
 
 
@@ -608,5 +909,26 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-
+  tableCell: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderRightWidth: 0.5,
+    borderRightColor: '#333',
+    minHeight: 36,
+  },
+  cellText: {
+    color: '#fff',
+    textAlign: 'center',
+    
+  },
+  tableInput: {
+  height: 32,
+  fontSize: 11,
+  paddingVertical: 2,
+  paddingHorizontal: 6,
+  backgroundColor: '#fff',
+  borderRadius: 4,
+  width: '95%',
+},
 });
