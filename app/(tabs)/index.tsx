@@ -32,7 +32,6 @@ type Registro = {
   obs: string;
 };
 
-
 export default function HomeScreen() {
   const [registros, setRegistros] = useState<Registro[]>([]);
   const [loading, setLoading] = useState(false);
@@ -224,6 +223,40 @@ export default function HomeScreen() {
     }
   }
 
+  const confirmarExclusao = (id: number) => {
+
+    if (Platform.OS === 'web') {
+
+      const confirmar = confirm(
+        'Deseja realmente excluir este visitante?'
+      );
+
+      if (confirmar) {
+        excluirVisitante(id);
+      }
+
+    } else {
+
+      Alert.alert(
+        'Confirmar exclusão',
+        'Deseja realmente excluir este visitante?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Excluir',
+            style: 'destructive',
+            onPress: () => excluirVisitante(id),
+          },
+        ]
+      );
+
+    }
+
+  };
+
   // Abre popup para inserir data_entrada ou data_saida
   const abrirPopupData = (
     item: Registro,
@@ -395,11 +428,11 @@ export default function HomeScreen() {
                 <Text style={styles.headerText}>ID</Text>
               </View>
 
-              <View style={[styles.tableCell, { flex: 1.5 }]}>
+              <View style={[styles.tableCell, { flex: 3}]}>
                 <Text style={styles.headerText}>CPF/CNPJ</Text>
               </View>
 
-              <View style={[styles.tableCell, { flex: 3 }]}>
+              <View style={[styles.tableCell, { flex: 4 }]}>
                 <Text style={styles.headerText}>NOME</Text>
               </View>
 
@@ -485,7 +518,7 @@ export default function HomeScreen() {
 
                     {/* CPF */}
                     <View
-                      style={[styles.tableCell, { flex: 1.5 }]}
+                      style={[styles.tableCell, { flex: 3 }]}
                     >
                       <Text style={styles.cellText}>
                         {item.cpf_cnpj}
@@ -494,7 +527,7 @@ export default function HomeScreen() {
 
                     {/* NOME */}
                     <View
-                      style={[styles.tableCell, { flex: 3 }]}
+                      style={[styles.tableCell, { flex: 4 }]}
                     >
                       <Text style={styles.cellText}>
                         {item.nome}
@@ -534,9 +567,34 @@ export default function HomeScreen() {
 
                       ) : (
 
-                        <Text style={styles.cellText}>
-                          {item.data_entrada}
-                        </Text>
+                        <TouchableOpacity
+                          onPress={() =>
+                            abrirPopupData(item, 'data_entrada')
+                          }
+                          style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                          }}
+                        >
+
+                          {item.data_entrada ? (
+
+                            <Text style={styles.cellText}>
+                              {item.data_entrada}
+                            </Text>
+
+                          ) : (
+
+                            <Ionicons
+                              name="calendar-outline"
+                              size={18}
+                              color="#007bff"
+                            />
+
+                          )}
+
+                        </TouchableOpacity>
 
                       )}
 
@@ -566,9 +624,34 @@ export default function HomeScreen() {
 
                       ) : (
 
-                        <Text style={styles.cellText}>
-                          {item.data_saida}
-                        </Text>
+                        <TouchableOpacity
+                          onPress={() =>
+                            abrirPopupData(item, 'data_saida')
+                          }
+                          style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%',
+                          }}
+                        >
+
+                          {item.data_saida ? (
+
+                            <Text style={styles.cellText}>
+                              {item.data_saida}
+                            </Text>
+
+                          ) : (
+
+                            <Ionicons
+                              name="calendar-outline"
+                              size={18}
+                              color="#007bff"
+                            />
+
+                          )}
+
+                        </TouchableOpacity>
 
                       )}
 
@@ -657,9 +740,7 @@ export default function HomeScreen() {
                       {/* DELETE */}
                       <TouchableOpacity
                         disabled={!isAdmin}
-                        onPress={() =>
-                          excluirVisitante(item.id)
-                        }
+                        onPress={() => confirmarExclusao(item.id)}
                         style={{
                           opacity: isAdmin ? 1 : 0.4,
                         }}
@@ -920,15 +1001,20 @@ const styles = StyleSheet.create({
   cellText: {
     color: '#fff',
     textAlign: 'center',
-    
+
   },
   tableInput: {
-  height: 32,
-  fontSize: 11,
-  paddingVertical: 2,
-  paddingHorizontal: 6,
-  backgroundColor: '#fff',
-  borderRadius: 4,
-  width: '95%',
-},
+    height: 32,
+    fontSize: 11,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    backgroundColor: '#fff',
+    borderRadius: 4,
+    width: '95%',
+  },
+  headerText: {
+    color: '#000',
+    textAlign: 'center',
+
+  },
 });
