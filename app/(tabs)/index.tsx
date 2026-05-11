@@ -143,7 +143,11 @@ export default function HomeScreen() {
   };
 
   const vehicles = async () => {
-    router.replace('/(tabs)/vehicles/index');
+    router.replace('/(tabs)/vehicles');
+  };
+
+    const graphics = async () => {
+    router.replace('/(tabs)/graphics');
   };
 
   const config = async () => {
@@ -346,7 +350,9 @@ export default function HomeScreen() {
         <View style={styles.button}>
           <Button title="Veículos" onPress={vehicles} />
         </View>
-
+        <View style={styles.button}>
+          <Button title="gráficos" onPress={graphics} />
+        </View>
         <View style={styles.iconButton}>
           <Icon
             name="cog"
