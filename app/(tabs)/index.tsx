@@ -142,6 +142,10 @@ export default function HomeScreen() {
     router.replace('/(tabs)/visitor');
   };
 
+  const vehicles = async () => {
+    router.replace('/vehicles');
+  };
+
   const config = async () => {
     router.replace('/(tabs)/settings')
   };
@@ -330,18 +334,31 @@ export default function HomeScreen() {
     <View style={styles.container}>
       {/* Botões Logout / Visitante */}
       <View style={styles.buttonContainer}>
+
         <View style={styles.button}>
           <Button title="Logout" onPress={logout} />
         </View>
+
         <View style={styles.button}>
           <Button title="Visitantes" onPress={visitor} />
         </View>
+
+        <View style={styles.button}>
+          <Button title="Veículos" onPress={vehicles} />
+        </View>
+
         <View style={styles.iconButton}>
-          <Icon name="cog" size={28} color="#fff" onPress={isAdmin ? config : undefined}
+          <Icon
+            name="cog"
+            size={28}
+            color="#fff"
+            onPress={isAdmin ? config : undefined}
             style={{
               opacity: isAdmin ? 1 : 0.4,
-            }} />
+            }}
+          />
         </View>
+
       </View>
 
       {/* Filtro */}
@@ -428,7 +445,7 @@ export default function HomeScreen() {
                 <Text style={styles.headerText}>ID</Text>
               </View>
 
-              <View style={[styles.tableCell, { flex: 3}]}>
+              <View style={[styles.tableCell, { flex: 3 }]}>
                 <Text style={styles.headerText}>CPF/CNPJ</Text>
               </View>
 
@@ -436,7 +453,7 @@ export default function HomeScreen() {
                 <Text style={styles.headerText}>NOME</Text>
               </View>
 
-              <View style={[styles.tableCell, { flex: 1.5 }]}>
+              <View style={[styles.tableCell, { flex: 3 }]}>
                 <Text style={styles.headerText}>EMPRESA</Text>
               </View>
 
@@ -536,7 +553,7 @@ export default function HomeScreen() {
 
                     {/* EMPRESA */}
                     <View
-                      style={[styles.tableCell, { flex: 1.5 }]}
+                      style={[styles.tableCell, { flex: 3 }]}
                     >
                       <Text style={styles.cellText}>
                         {item.empresa}
@@ -997,10 +1014,13 @@ const styles = StyleSheet.create({
     borderRightWidth: 0.5,
     borderRightColor: '#333',
     minHeight: 36,
+    flexWrap: 'wrap',
   },
   cellText: {
     color: '#fff',
     textAlign: 'center',
+     flexWrap: 'wrap',
+     width: '100%',
 
   },
   tableInput: {
@@ -1011,6 +1031,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 4,
     width: '95%',
+     flexWrap: 'wrap',
   },
   headerText: {
     color: '#000',

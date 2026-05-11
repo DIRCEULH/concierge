@@ -21,17 +21,6 @@ export default function CadastroScreen() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const checkLogin = async () => {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) {
-        router.replace('/login');
-        return
-      }
-      fetchTipos()
-    };
-    checkLogin();
-  }, []);
 
   const [form, setForm] = useState({
     cpf_cnpj: '',
@@ -57,9 +46,50 @@ export default function CadastroScreen() {
     nome_tipo: string;
   };
 
+  useEffect(() => {
+    const checkLogin = async () => {
+      const user = await AsyncStorage.getItem('user');
+
+      if (!user) {
+        router.replace('/login');
+        return;
+      }
+
+      await fetchTipos();
+    };
+
+    checkLogin();
+  }, []);
+
+  useEffect(() => {
+    if (form.cpf_cnpj) {
+      buscarVeiculos();
+    }
+  }, [form.cpf_cnpj]);
+
+
   const [busca, setBusca] = useState('');
   const [resultados, setResultados] = useState<Visitante[]>([]);
   const [tipos, setTipos] = useState<Visitante[]>([]);
+  const [placas, setPlacas] = useState<any[]>([]);
+
+
+  const buscarVeiculos = async () => {
+    try {
+      const response = await fetch(
+        `https://api-concierge.vercel.app/vehicles?cpf_cnpj=${form.cpf_cnpj}`
+      );
+
+      const data = await response.json();
+
+      console.log('RETORNO API:', data);
+
+      setPlacas(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+      console.log('Erro ao buscar veículos:', error);
+    }
+  };
 
   const start = async () => {
     router.replace('/(tabs)');
@@ -70,13 +100,21 @@ export default function CadastroScreen() {
       const res = await fetch('https://api-concierge.vercel.app/visitor_type');
       const data = await res.json();
 
-      console.log('Dirceu', data)
-      setTipos(data);
+      console.log('TIPOS API:', data);
+
+      const lista = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.data)
+          ? data.data
+          : [];
+
+      setTipos(lista);
+
     } catch (err) {
       console.log('Erro ao buscar tipos:', err);
+      setTipos([]);
     }
   };
-
 
   const formatCpfCnpj = (value: string) => {
     let v = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
@@ -179,6 +217,8 @@ export default function CadastroScreen() {
       if (!form.local) return showMessage('Erro', 'local obrigatório');
       if (!form.codigo_tipo) return showMessage('Erro', 'Tipo de Pessoa obrigatório');
 
+      console.log('Dirceu', form.placa)
+
       const response = await axios.post(
         'https://api-concierge.vercel.app/visitors',
         form
@@ -212,7 +252,7 @@ export default function CadastroScreen() {
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Cadastro</Text>
+        <Text style={styles.title}>Cadastro de Pessoas</Text>
 
         {/* 🔥 INPUT INTELIGENTE */}
         <View>
@@ -304,13 +344,35 @@ export default function CadastroScreen() {
           style={styles.input}
         />
 
-        <TextInput
-          placeholder="Placa"
-          placeholderTextColor="#000"
-          value={form.placa}
-          onChangeText={(v) => handleChange('placa', v)}
-          style={styles.input}
-        />
+
+
+        {Array.isArray(placas) && placas.length > 0 ? (
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={form.placa}
+              onValueChange={(value) => handleChange('placa', value)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Selecione a placa" value="" />
+
+              {placas.map((item) => (
+                <Picker.Item
+                  key={item.id}
+                  label={item.placa}
+                  value={item.placa}
+                />
+              ))}
+            </Picker>
+          </View>
+        ) : (
+          <TextInput
+            placeholder="Placa"
+            placeholderTextColor="#000"
+            value={form.placa}
+            onChangeText={(v) => handleChange('placa', v)}
+            style={styles.input}
+          />
+        )}
 
         <TextInput
           placeholder="Destino"
@@ -451,5 +513,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 6,
+  },
+
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+
+  picker: {
+    height: 50,
+    width: '100%',
   },
 });
