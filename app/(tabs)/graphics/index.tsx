@@ -115,7 +115,7 @@ export default function Grafico() {
 
                     <PieChart
                         data={graficoData}
-                        width={screenWidth - 60}
+                         width={Math.min(screenWidth - 40, 350)}
                         height={220}
                         accessor="population"
                         backgroundColor="transparent"
@@ -138,7 +138,7 @@ export default function Grafico() {
 
                     <View style={styles.infoBox}>
                         <Text style={styles.infoNumber}>
-                             {graficoData[0]?.population || 0}
+                            {graficoData[0]?.population || 0}
                         </Text>
 
                         <Text style={styles.infoLabel}>
@@ -148,7 +148,7 @@ export default function Grafico() {
 
                     <View style={styles.infoBox}>
                         <Text style={styles.infoNumber}>
-                              {graficoData[1]?.population || 0}
+                            {graficoData[1]?.population || 0}
                         </Text>
 
                         <Text style={styles.infoLabel}>
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     },
 
     buttonContainer: {
-        marginTop: 20,
+        marginTop: 10,
         alignItems: 'center',
     },
 
