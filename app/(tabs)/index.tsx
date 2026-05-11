@@ -143,7 +143,7 @@ export default function HomeScreen() {
   };
 
   const vehicles = async () => {
-    router.replace('/vehicles');
+    router.replace('/(tabs)/vehicles/index');
   };
 
   const config = async () => {
