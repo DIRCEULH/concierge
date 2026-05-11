@@ -116,35 +116,34 @@ export default function CadastroScreen() {
     }
   };
 
-  const formatCpfCnpj = (value: string) => {
-    let v = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    const formatCpfCnpj = (value: string) => {
 
-    // 🔥 LIMITE
-    if (/^\d+$/.test(v)) {
-      v = v.slice(0, 11); // CPF
-    } else {
-      v = v.slice(0, 14); // CNPJ alfanumérico
-    }
+        let v = value
+            .replace(/[^a-zA-Z0-9]/g, '')
+            .toUpperCase();
 
-    // CPF
-    if (/^\d+$/.test(v)) {
-      v = v
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        // 🔥 CPF (11)
+        if (v.length <= 11) {
 
-      return v;
-    }
+            v = v
+                .replace(/^(.{3})(.{0,3})/, '$1.$2')
+                .replace(/^(.{7})(.{0,3})/, '$1.$2')
+                .replace(/^(.{11})(.{0,2})/, '$1-$2');
 
-    // CNPJ alfanumérico
-    v = v
-      .replace(/^(.{2})(.{0,3})/, '$1.$2')
-      .replace(/^(.{6})(.{0,3})/, '$1.$2')
-      .replace(/^(.{10})(.{0,4})/, '$1/$2')
-      .replace(/^(.{15})(.{0,2})/, '$1-$2');
+            return v;
+        }
 
-    return v;
-  };
+        // 🔥 CNPJ (14)
+        v = v.slice(0, 14);
+
+        v = v
+            .replace(/^(.{2})(.{0,3})/, '$1.$2')
+            .replace(/^(.{6})(.{0,3})/, '$1.$2')
+            .replace(/^(.{10})(.{0,4})/, '$1/$2')
+            .replace(/^(.{15})(.{0,2})/, '$1-$2');
+
+        return v;
+    };
 
   const buscarVisitantes = async (texto: string) => {
     const clean = texto.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
