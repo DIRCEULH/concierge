@@ -7,7 +7,6 @@ import { default as React, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Button,
   Modal,
   Platform,
   ScrollView,
@@ -146,7 +145,7 @@ export default function HomeScreen() {
     router.replace('/(tabs)/vehicles');
   };
 
-    const graphics = async () => {
+  const graphics = async () => {
     router.replace('/(tabs)/graphics');
   };
 
@@ -340,18 +339,27 @@ export default function HomeScreen() {
       <View style={styles.buttonContainer}>
 
         <View style={styles.button}>
-          <Button title="Logout" onPress={logout} />
+          <TouchableOpacity style={styles.iconOnlyButton} onPress={logout}>
+            <Ionicons name="log-out-outline" size={28} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+
+        <View style={styles.button}>
+          <TouchableOpacity  style={styles.iconOnlyButton} onPress={visitor}>
+            <Ionicons name="people-outline" size={28} color="#fff" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.button}>
-          <Button title="Visitantes" onPress={visitor} />
-        </View>
-
-        <View style={styles.button}>
-          <Button title="Veículos" onPress={vehicles} />
+          <TouchableOpacity   style={styles.iconOnlyButton} onPress={vehicles}>
+            <Ionicons name="car-outline" size={28} color="#fff" />
+          </TouchableOpacity>
         </View>
         <View style={styles.button}>
-          <Button title="gráficos" onPress={graphics} />
+          <TouchableOpacity  style={styles.iconOnlyButton} onPress={graphics}>
+            <Ionicons name="bar-chart-outline" size={28} color="#fff" />
+          </TouchableOpacity>
         </View>
         <View style={styles.iconButton}>
           <Icon
@@ -934,6 +942,13 @@ const styles = StyleSheet.create({
   logoutContainer: { marginHorizontal: 1, marginBottom: 5 },
   buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
   button: { flex: 1, marginHorizontal: 1 },
+  iconOnlyButton: {
+    backgroundColor: '#2196F3',
+    padding: 4,
+    borderRadius: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
   header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
   headerCell: { width: 125, height: 15, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 10, borderRightWidth: 2, borderRightColor: '#222' },
@@ -1025,8 +1040,8 @@ const styles = StyleSheet.create({
   cellText: {
     color: '#fff',
     textAlign: 'center',
-     flexWrap: 'wrap',
-     width: '100%',
+    flexWrap: 'wrap',
+    width: '100%',
 
   },
   tableInput: {
@@ -1037,7 +1052,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 4,
     width: '95%',
-     flexWrap: 'wrap',
+    flexWrap: 'wrap',
   },
   headerText: {
     color: '#000',
