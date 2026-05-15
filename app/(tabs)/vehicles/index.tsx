@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
     Alert,
@@ -31,6 +31,28 @@ export default function CadastroVehicleScreen() {
     });
 
     const [user, setUser] = useState('');
+    const [vehicles, setVehicles] = useState<any[]>([]);
+    const [searchCpfCnpj, setSearchCpfCnpj] = useState('');
+
+    const fetchVehicles = async () => {
+        try {
+            const response = await axios.get('https://api-concierge.vercel.app/vehicles');
+            const data = response.data ?? [];
+            setVehicles(Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : []);
+        } catch (error) {
+            console.log('Erro ao carregar veículos:', error);
+            setVehicles([]);
+        }
+    };
+
+    const registrosFiltrados = useMemo(() => {
+        const cleanSearch = searchCpfCnpj.replace(/[^0-9]/g, '');
+        if (!cleanSearch) return vehicles;
+
+        return vehicles.filter((item: any) =>
+            (item.cpf_cnpj ?? '').replace(/[^0-9]/g, '').includes(cleanSearch)
+        );
+    }, [searchCpfCnpj, vehicles]);
 
     useEffect(() => {
 
@@ -46,6 +68,7 @@ export default function CadastroVehicleScreen() {
             const userValue = JSON.parse(userStorage);
 
             setUser(userValue);
+            await fetchVehicles();
 
         };
 
@@ -140,6 +163,8 @@ export default function CadastroVehicleScreen() {
                 tipo_veiculo: '',
             });
 
+            await fetchVehicles();
+
         } catch (error) {
 
             console.log(error);
@@ -157,7 +182,7 @@ export default function CadastroVehicleScreen() {
 
     return (
 
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={styles.scroll} nestedScrollEnabled>
 
             <View style={styles.formContainer}>
 
@@ -326,6 +351,63 @@ export default function CadastroVehicleScreen() {
 
             </View>
 
+            <View style={styles.tableSection}>
+                <Text style={styles.sectionTitle}>Veículos cadastrados</Text>
+
+                <TextInput
+                    placeholder="Pesquisar por CPF/CNPJ"
+                    placeholderTextColor="#000"
+                    value={searchCpfCnpj}
+                    onChangeText={(text) => setSearchCpfCnpj(text)}
+                    style={styles.input}
+                />
+
+                <View style={styles.tableContainer}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View style={{ minWidth: 700 }}>
+                            <View style={[styles.tableRow, styles.tableHeaderRow]}>
+                                <Text style={[styles.tableHeaderText, { flex: 2 }]}>CPF/CNPJ</Text>
+                                <Text style={[styles.tableHeaderText, { flex: 1.2 }]}>Placa</Text>
+                                <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Modelo</Text>
+                                <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Marca</Text>
+                                <Text style={[styles.tableHeaderText, { flex: 1.2 }]}>Cor</Text>
+                                <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Tipo</Text>
+                            </View>
+
+                            <ScrollView style={styles.tableBody} nestedScrollEnabled showsVerticalScrollIndicator>
+                                {registrosFiltrados.map((item, index) => (
+                                    <View
+                                        key={item.id ?? index}
+                                        style={[
+                                            styles.tableRow,
+                                            {
+                                                backgroundColor:
+                                                    index % 2 === 0 ? '#111' : '#1a1a1a',
+                                            },
+                                        ]}
+                                    >
+                                        <Text style={[styles.tableCell, { flex: 2 }]}>{item.cpf_cnpj ?? ''}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1.2 }]}>{item.placa ?? ''}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.modelo ?? ''}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.marca ?? ''}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1.2 }]}>{item.cor ?? ''}</Text>
+                                        <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.tipo_veiculo ?? ''}</Text>
+                                    </View>
+                                ))}
+
+                                {registrosFiltrados.length === 0 && (
+                                    <View style={styles.emptyRow}>
+                                        <Text style={styles.emptyText}>
+                                            Nenhum veículo encontrado.
+                                        </Text>
+                                    </View>
+                                )}
+                            </ScrollView>
+                        </View>
+                    </ScrollView>
+                </View>
+            </View>
+
         </ScrollView>
     );
 }
@@ -394,6 +476,70 @@ const styles = StyleSheet.create({
         color: '#000',
         height: 50,
         width: '100%',
+    },
+
+    tableSection: {
+        width: '90%',
+        maxWidth: 1000,
+        marginTop: 30,
+    },
+
+    sectionTitle: {
+        fontSize: 18,
+        color: '#fff',
+        marginBottom: 10,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+
+    tableContainer: {
+        backgroundColor: '#111',
+        borderRadius: 8,
+        padding: 10,
+        width: '100%',
+    },
+
+    tableBody: {
+        height: 150,
+    },
+
+    tableRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        minHeight: 42,
+        paddingHorizontal: 4,
+    },
+
+    tableHeaderRow: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+        marginBottom: 6,
+    },
+
+    tableCell: {
+        color: '#fff',
+        paddingVertical: 8,
+        paddingHorizontal: 6,
+        textAlign: 'left',
+    },
+
+    tableHeaderText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        paddingVertical: 8,
+        paddingHorizontal: 6,
+        textAlign: 'left',
+    },
+
+    emptyRow: {
+        paddingVertical: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    emptyText: {
+        color: '#ccc',
+        textAlign: 'center',
     },
 
 });
