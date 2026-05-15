@@ -108,17 +108,18 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <Image
-        source={require('@/assets/images/Concierge.png')}
-        style={styles.logo}
-      />
-      <ThemedText type="title">
-        {isRegister ? "Cadastro" : "Login"}
-      </ThemedText>
+      <View style={styles.card}>
+        <Image
+          source={require('@/assets/images/Concierge.png')}
+          style={styles.logo}
+        />
+        <ThemedText type="title" style={styles.titleText}>
+          {/* {isRegister ? "Cadastro" : "Login"} */}
+        </ThemedText>
 
-      {/* 👤 Usuário (só no cadastro) */}
-      {isRegister && (
-        <View style={styles.inputContainer}>
+        {/* 👤 Usuário (só no cadastro) */}
+        {isRegister && (
+          <View style={styles.inputContainer}>
           <Ionicons name="person-outline" size={20} />
           <TextInput
             placeholder="Usuário"
@@ -189,7 +190,7 @@ export default function LoginScreen() {
             : "Não tem conta? Cadastrar"}
         </Text>
       </TouchableOpacity>
-
+      </View>
     </ThemedView>
   )
 }
@@ -198,8 +199,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
-    gap: 12
+    gap: 12,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -211,6 +225,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: '#fff',
     justifyContent: 'space-between',
+    marginBottom: 12,
   },
   input: {
     flex: 1,
@@ -225,24 +240,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     padding: 12,
     borderRadius: 6,
-    marginTop: 10
+    marginTop: 10,
   },
 
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 
   switchButton: {
     marginTop: 10,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     alignSelf: 'center',
-    marginBottom: 5,
+    marginBottom: 15,
     resizeMode: 'contain',
-    marginTop: -125
+  },
+  titleText: {
+    color: '#111',
+    textAlign: 'center',
+    marginBottom: 16,
   },
 })
