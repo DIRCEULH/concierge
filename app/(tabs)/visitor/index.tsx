@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Platform,
@@ -12,6 +12,7 @@ import {
   TextInput,
   View
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaskedTextInput } from 'react-native-mask-text';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -72,6 +73,165 @@ export default function CadastroScreen() {
   const [resultados, setResultados] = useState<Visitante[]>([]);
   const [tipos, setTipos] = useState<Visitante[]>([]);
   const [placas, setPlacas] = useState<any[]>([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [datePickerField, setDatePickerField] = useState<'data_entrada' | 'data_saida' | null>(null);
+  const [datePickerValue, setDatePickerValue] = useState(new Date());
+  const [datePickerMode, setDatePickerMode] = useState<'date' | 'time'>('date');
+  
+
+  const formatDateTime = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+  };
+
+  const parseDateTime = (value: string) => {
+    const match = value.match(/(\d{2})\/(\d{2})\/(\d{4})\s*(\d{2}):(\d{2})?/);
+    if (!match) {
+      return new Date();
+    }
+
+    const [, day, month, year, hour = '00', minute = '00'] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+  };
+
+  const formatDateTimeForWeb = (value: string) => {
+    if (!value) return '';
+    const match = value.match(/(\d{2})\/(\d{2})\/(\d{4})\s*(\d{2}):(\d{2})/);
+    if (!match) return '';
+    const [, day, month, year, hour, minute] = match;
+    return `${year}-${month}-${day}T${hour}:${minute}`;
+  };
+
+  const parseDateTimeFromWeb = (value: string) => {
+    if (!value) return '';
+    const match = value.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (!match) return '';
+    const [, year, month, day, hour, minute] = match;
+    return `${day}/${month}/${year} ${hour}:${minute}`;
+  };
+
+  const openDatePicker = (field: 'data_entrada' | 'data_saida') => {
+    setDatePickerField(field);
+    setDatePickerValue(parseDateTime(form[field] || ''));
+    setDatePickerMode('date');
+    setShowDatePicker(true);
+  };
+
+  const openWebDateTimePicker = (field: 'data_entrada' | 'data_saida') => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'datetime-local';
+      // make input off-screen but with size so Chrome allows interaction
+      input.style.position = 'fixed';
+      input.style.left = '0px';
+      input.style.top = '0px';
+      input.style.width = '1px';
+      input.style.height = '1px';
+      input.style.opacity = '0';
+      input.style.zIndex = '1000';
+
+      const current = formatDateTimeForWeb(form[field]);
+      if (current) input.value = current;
+
+      const cleanup = () => {
+        try { document.body.removeChild(input); } catch (e) {}
+      };
+
+      input.addEventListener('change', (e: any) => {
+        const v = e.target.value;
+        const parsed = parseDateTimeFromWeb(v);
+        handleChange(field, parsed);
+        cleanup();
+      });
+
+      input.addEventListener('blur', cleanup);
+
+      document.body.appendChild(input);
+
+      // Prefer showPicker when available (Chrome/Edge support); fallback to click()
+      // Call focus before show/click to improve reliability
+      input.focus();
+      const tryShow = (input as any).showPicker;
+      if (typeof tryShow === 'function') {
+        try {
+          (input as any).showPicker();
+        } catch (err) {
+          input.click();
+        }
+      } else {
+        input.click();
+      }
+    } catch (err) {
+      console.log('Web picker not available', err);
+    }
+  };
+
+  const handleDateTimeChange = (event: any, selectedDate?: Date) => {
+    if (event?.type === 'dismissed') {
+      setShowDatePicker(false);
+      setDatePickerField(null);
+      return;
+    }
+
+    if (!selectedDate || !datePickerField) {
+      return;
+    }
+
+    if (Platform.OS === 'android') {
+      if (datePickerMode === 'date') {
+        // user picked a date: apply it immediately (keep previous time if any),
+        // then switch to time mode so they can adjust the time if desired
+        const pickedDate = new Date(selectedDate);
+        const current = datePickerValue || new Date();
+        pickedDate.setHours(current.getHours(), current.getMinutes());
+
+        // update field immediately with chosen date (and existing time)
+        handleChange(datePickerField, formatDateTime(pickedDate));
+
+        // keep value and open time picker for further adjustment
+        setDatePickerValue(pickedDate);
+        setDatePickerMode('time');
+        setShowDatePicker(true);
+        return;
+      }
+
+      if (datePickerMode === 'time') {
+        const date = new Date(datePickerValue);
+        date.setHours(selectedDate.getHours(), selectedDate.getMinutes());
+        // update field again with final chosen time
+        handleChange(datePickerField, formatDateTime(date));
+        setShowDatePicker(false);
+        setDatePickerField(null);
+        setDatePickerMode('date');
+      }
+      return;
+    }
+
+    handleChange(datePickerField, formatDateTime(selectedDate));
+    setShowDatePicker(false);
+    setDatePickerField(null);
+  };
+
+  const lastTapRef = useRef<Record<string, number>>({});
+
+  const handleDateDoubleClick = (field: 'data_entrada' | 'data_saida') => {
+    const now = new Date();
+    handleChange(field, formatDateTime(now));
+  };
+
+  const handleDateTap = (field: 'data_entrada' | 'data_saida') => {
+    const now = Date.now();
+    const last = lastTapRef.current[field] || 0;
+    if (now - last < 350) {
+      handleDateDoubleClick(field);
+    }
+    lastTapRef.current[field] = now;
+  };
 
 
   const buscarVeiculos = async () => {
@@ -257,7 +417,7 @@ export default function CadastroScreen() {
         <View>
           <TextInput
             placeholder="CPF ou CNPJ"
-            placeholderTextColor="#000"
+            placeholderTextColor="rgba(255,255,255,0.65)"
             value={busca}
             onChangeText={(text) => {
               const formatted = formatCpfCnpj(text);
@@ -311,7 +471,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Nome"
-          placeholderTextColor="#000"
+          placeholderTextColor="rgba(255,255,255,0.65)"
           value={form.nome}
           onChangeText={(v) => handleChange('nome', v)}
           style={styles.input}
@@ -319,31 +479,64 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Empresa"
-          placeholderTextColor="#000"
+          placeholderTextColor="rgba(255,255,255,0.65)"
           value={form.empresa}
           onChangeText={(v) => handleChange('empresa', v)}
           style={styles.input}
         />
 
-        <MaskedTextInput
-          mask="99/99/9999 99:99"
-          placeholder="Data Entrada"
-          placeholderTextColor="#000"
-          value={form.data_entrada}
-          onChangeText={(v) => handleChange('data_entrada', v)}
-          style={styles.input}
-        />
+        <View style={styles.dateRow}>
+          <View style={styles.dateField}>
+            <MaskedTextInput
+              mask="99/99/9999 99:99"
+              placeholder="Data Entrada"
+              placeholderTextColor="rgba(255,255,255,0.65)"
+              value={form.data_entrada}
+              onChangeText={(v) => handleChange('data_entrada', v)}
+              style={[styles.input, styles.dateInput, styles.dateInputLeft]}
+              keyboardType="numeric"
+              {...({ onDoubleClick: () => handleDateDoubleClick('data_entrada'), onTouchStart: () => handleDateTap('data_entrada') } as any)}
+            />
 
-        <MaskedTextInput
-          mask="99/99/9999 99:99"
-          placeholder="Data Saída"
-          placeholderTextColor="#000"
-          value={form.data_saida}
-          onChangeText={(v) => handleChange('data_saida', v)}
-          style={styles.input}
-        />
+            <TouchableOpacity
+              style={[styles.dateButton, styles.dateButtonRight]}
+              onPress={() => Platform.OS === 'web' ? openWebDateTimePicker('data_entrada') : openDatePicker('data_entrada')}
+            >
+              <Ionicons name="calendar-outline" size={18} color="#d3f2ff" />
+            </TouchableOpacity>
+          </View>
 
+          <View style={styles.dateField}>
+            <MaskedTextInput
+              mask="99/99/9999 99:99"
+              placeholder="Data Saída"
+              placeholderTextColor="rgba(255,255,255,0.65)"
+              value={form.data_saida}
+              onChangeText={(v) => handleChange('data_saida', v)}
+              style={[styles.input, styles.dateInput, styles.dateInputLeft]}
+              keyboardType="numeric"
+              {...({ onDoubleClick: () => handleDateDoubleClick('data_saida'), onTouchStart: () => handleDateTap('data_saida') } as any)}
+            />
 
+            <TouchableOpacity
+              style={[styles.dateButton, styles.dateButtonRight]}
+              onPress={() => Platform.OS === 'web' ? openWebDateTimePicker('data_saida') : openDatePicker('data_saida')}
+            >
+              <Ionicons name="calendar-outline" size={18} color="#d3f2ff" />
+            </TouchableOpacity>
+          </View>
+
+          
+        </View>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={datePickerValue}
+            mode={Platform.OS === 'android' ? datePickerMode : 'datetime'}
+            display={Platform.OS === 'android' ? (datePickerMode === 'date' ? 'calendar' : 'clock') : 'default'}
+            onChange={handleDateTimeChange}
+          />
+        )}
 
         {Array.isArray(placas) && placas.length > 0 ? (
           <View style={styles.pickerContainer}>
@@ -366,7 +559,7 @@ export default function CadastroScreen() {
         ) : (
           <TextInput
             placeholder="Placa"
-            placeholderTextColor="#000"
+            placeholderTextColor="rgba(255,255,255,0.65)"
             value={form.placa}
             onChangeText={(v) => handleChange('placa', v)}
             style={styles.input}
@@ -375,7 +568,7 @@ export default function CadastroScreen() {
 
         <TextInput
           placeholder="Destino"
-          placeholderTextColor="#000"
+          placeholderTextColor="rgba(255,255,255,0.65)"
           value={form.destino}
           onChangeText={(v) => handleChange('destino', v)}
           style={styles.input}
@@ -385,42 +578,52 @@ export default function CadastroScreen() {
           <Text>{form.atendente}</Text>
         </View>
 
-        <Picker
-          selectedValue={form.local}
-          onValueChange={(itemValue) => handleChange('local', itemValue)}
-          style={styles.input}
-        >
-          <Picker.Item label="Selecione o local..." value="" />
-          <Picker.Item label="MATRIZ" value="MATRIZ" />
-          <Picker.Item label="CD-1" value="CD-1" />
-          <Picker.Item label="CD-2" value="CD-2" />
-          <Picker.Item label="CD-3" value="CD-3" />
-          <Picker.Item label="CD-4" value="CD-4" />
-          <Picker.Item label="FILIAL-1" value="FILIAL-1" />
-          <Picker.Item label="FILIAL-2" value="FILIAL-2" />
-          <Picker.Item label="FILIAL-3" value="FILIAL-3" />
-          <Picker.Item label="FILIAL-4" value="FILIAL-4" />
-        </Picker>
+        <View style={styles.row}>
+          <View style={styles.field}>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={form.local}
+                onValueChange={(itemValue) => handleChange('local', itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione o local..." value="" />
+                <Picker.Item label="MATRIZ" value="MATRIZ" />
+                <Picker.Item label="CD-1" value="CD-1" />
+                <Picker.Item label="CD-2" value="CD-2" />
+                <Picker.Item label="CD-3" value="CD-3" />
+                <Picker.Item label="CD-4" value="CD-4" />
+                <Picker.Item label="FILIAL-1" value="FILIAL-1" />
+                <Picker.Item label="FILIAL-2" value="FILIAL-2" />
+                <Picker.Item label="FILIAL-3" value="FILIAL-3" />
+                <Picker.Item label="FILIAL-4" value="FILIAL-4" />
+              </Picker>
+            </View>
+          </View>
 
-        <Picker
-          selectedValue={form.codigo_tipo}
-          onValueChange={(itemValue) => handleChange('codigo_tipo', itemValue)}
-          style={styles.input}
-        >
-          <Picker.Item label="Selecione o tipo..." value="" />
+          <View style={styles.field}>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={form.codigo_tipo}
+                onValueChange={(itemValue) => handleChange('codigo_tipo', itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione o tipo..." value="" />
 
-          {tipos.map((tipo) => (
-            <Picker.Item
-              key={tipo.codigo_tipo}
-              label={tipo.nome_tipo}
-              value={tipo.codigo_tipo}
-            />
-          ))}
-        </Picker>
+                {tipos.map((tipo) => (
+                  <Picker.Item
+                    key={tipo.codigo_tipo}
+                    label={tipo.nome_tipo}
+                    value={tipo.codigo_tipo}
+                  />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        </View>
 
         <TextInput
           placeholder="Obs"
-          placeholderTextColor="#000"
+          placeholderTextColor="rgba(255,255,255,0.65)"
           value={form.obs}
           onChangeText={(v) => handleChange('obs', v)}
           style={styles.input}
@@ -444,88 +647,180 @@ export default function CadastroScreen() {
 }
 
 const styles = StyleSheet.create({
-  // 🔥 controla o comportamento do scroll (ANDROID + WEB)
   scroll: {
     flexGrow: 1,
     alignItems: 'center',
-    paddingVertical: 20,
-    backgroundColor: '#000',
+    paddingVertical: 24,
+    backgroundColor: '#071926',
   },
 
-  // 🔥 container centralizado com largura limitada
   formContainer: {
     width: '90%',
-    maxWidth: 400,
-  },
-
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#000',
+    maxWidth: 480,
+    padding: 24,
+    borderRadius: 28,
+    backgroundColor: 'rgba(10,126,164,0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(10,126,164,0.22)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 0.22,
+    shadowRadius: 30,
+    elevation: 12,
   },
 
   title: {
-    fontSize: 20,
-    color: '#fff',
-    marginBottom: 10,
+    fontSize: 24,
+    color: '#d3f2ff',
+    marginBottom: 20,
     textAlign: 'center',
+    fontWeight: '700',
+    letterSpacing: 0.4,
   },
 
   input: {
-    backgroundColor: '#fff',
-    padding: 10,
-    marginBottom: 5,
-    borderRadius: 5,
-    color: '#000'
+    minHeight: 54,
+    backgroundColor: '#0b304c',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(10,126,164,0.30)',
+    justifyContent: 'center',
+  },
+
+  inputText: {
+    color: '#eef8ff',
+    fontSize: 16,
+  },
+
+  placeholderText: {
+    color: 'rgba(226,245,255,0.7)',
   },
 
   dropdown: {
-    backgroundColor: '#fff',
+    backgroundColor: '#0b304c',
     borderWidth: 1,
-    maxHeight: 150,
+    borderColor: 'rgba(10,126,164,0.30)',
+    borderRadius: 14,
+    maxHeight: 180,
+    marginBottom: 12,
   },
 
   item: {
-    padding: 10,
+    padding: 14,
     borderBottomWidth: 1,
+    borderColor: 'rgba(10,126,164,0.18)',
+    color: '#eef8ff',
   },
 
   inputDisabled: {
-    backgroundColor: '#eee',
+    backgroundColor: '#12354a',
   },
 
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '700',
+    marginLeft: 6,
   },
 
   buttonContainer: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
     justifyContent: 'center',
+    marginTop: 16,
   },
 
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 6,
+    justifyContent: 'center',
+    backgroundColor: '#0a7ea4',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 16,
+    marginRight: 10,
+    marginBottom: 10,
+    minWidth: 140,
   },
 
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 10,
+    borderColor: 'rgba(10,126,164,0.30)',
+    borderRadius: 16,
+    marginBottom: 12,
     overflow: 'hidden',
+    backgroundColor: '#0b304c',
   },
 
   picker: {
-    height: 50,
     width: '100%',
-      color: '#000',
-  backgroundColor: '#fff',
+    height: 54,
+    color: '#eef8ff',
+    backgroundColor: '#0b304c',
+  },
+
+  dateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+
+  dateField: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  dateInput: {
+    flex: 1,
+    marginBottom: 0,
+    marginRight: 4,
+    minWidth: 0,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+
+  dateInputLeft: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+
+  dateButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#0a7ea4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  dateButtonRight: {
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  },
+
+  hiddenInput: {
+    position: 'absolute',
+    left: -9999,
+    width: 0,
+    height: 0,
+    opacity: 0,
+  },
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+
+  field: {
+    flex: 1,
+    minWidth: 150,
   },
 });

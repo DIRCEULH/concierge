@@ -56,6 +56,94 @@ export default function HomeScreen() {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [campoData, setCampoData] = useState<'data_entrada' | 'data_saida'>('data_saida');
+  const [showFiltroDatePicker, setShowFiltroDatePicker] = useState(false);
+  const [filterDateValue, setFilterDateValue] = useState(new Date());
+
+  const formatDateOnly = (d: Date) => {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const parseDateOnly = (value: string) => {
+    const parts = value.split('/');
+    if (parts.length < 3) return new Date();
+    const [day, month, year] = parts;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  };
+
+  const formatDateForWeb = (value: string) => {
+    if (!value) return '';
+    const parts = value.split('/');
+    if (parts.length < 3) return '';
+    const [day, month, year] = parts;
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateFromWeb = (value: string) => {
+    if (!value) return '';
+    const match = value.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return '';
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  };
+
+  const openWebDatePicker = async () => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'date';
+      input.style.position = 'fixed';
+      input.style.left = '0px';
+      input.style.top = '0px';
+      input.style.width = '1px';
+      input.style.height = '1px';
+      input.style.opacity = '0';
+      input.style.zIndex = '1000';
+
+      const current = formatDateForWeb(filtroData);
+      if (current) input.value = current;
+
+      const cleanup = () => {
+        try { document.body.removeChild(input); } catch (e) {}
+      };
+
+      input.addEventListener('change', (e: any) => {
+        const v = e.target.value;
+        const parsed = parseDateFromWeb(v);
+        setFiltroData(parsed);
+        fetchRegistros(parsed, filtroLocal);
+        cleanup();
+      });
+
+      input.addEventListener('blur', cleanup);
+
+      document.body.appendChild(input);
+      input.focus();
+      const tryShow = (input as any).showPicker;
+      if (typeof tryShow === 'function') {
+        try {
+          (input as any).showPicker();
+        } catch (err) {
+          input.click();
+        }
+      } else {
+        input.click();
+      }
+    } catch (err) {
+      console.log('Web date picker not available', err);
+    }
+  };
+
+  const openFiltroDatePicker = () => {
+    if (Platform.OS === 'web') {
+      openWebDatePicker();
+      return;
+    }
+
+    setFilterDateValue(parseDateOnly(filtroData));
+    setShowFiltroDatePicker(true);
+  };
 
 
   const scrollRef = useRef<ScrollView>(null);
@@ -400,14 +488,23 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.filtroItem}>
-          <MaskedTextInput
-            mask="99/99/9999"
-            placeholder="Data"
-            keyboardType="numeric"
-            value={filtroData}
-            onChangeText={setFiltroData}
-            style={styles.input}
-          />
+          <View style={styles.dateField}>
+            <MaskedTextInput
+              mask="99/99/9999"
+              placeholder="Data"
+              placeholderTextColor="rgba(255,255,255,0.65)"
+              keyboardType="numeric"
+              value={filtroData}
+              onChangeText={(v) => setFiltroData(v)}
+              style={[styles.input, styles.dateInput, styles.dateInputLeft]}
+            />
+            <TouchableOpacity
+              onPress={openFiltroDatePicker}
+              style={[styles.dateButton, styles.dateButtonRight]}
+            >
+              <Ionicons name="calendar-outline" size={18} color="#d3f2ff" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.filtroItem}>
@@ -425,7 +522,7 @@ export default function HomeScreen() {
             onPress={() => fetchRegistros(filtroData, filtroLocal)}
             style={styles.botaoBuscar}
           >
-            <Text style={styles.textoBotao}>🔍</Text>
+              <Ionicons name="search-outline" size={18} color="#d3f2ff" />
           </TouchableOpacity>
         </View>
 
@@ -435,10 +532,10 @@ export default function HomeScreen() {
 
 
       {/* TABELA */}
-      <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <View style={[{ flex: 1, backgroundColor: '#071926', borderRadius: 20, marginTop: 12, borderWidth: 1, borderColor: 'rgba(10,126,164,0.22)', overflow: 'hidden' }]}>
 
         {/* HEADER */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: 'rgba(10,126,164,0.08)', borderBottomWidth: 1, borderBottomColor: 'rgba(10,126,164,0.22)' }]}>
           <ScrollView
             horizontal
             ref={headerScrollRef}
@@ -532,8 +629,8 @@ export default function HomeScreen() {
                         alignItems: 'center',
                         backgroundColor:
                           index % 2 === 0
-                            ? '#0d0d0d'
-                            : '#1a1a1a',
+                            ? '#0a1420'
+                            : '#0f1b2d',
                       },
                     ]}
                   >
@@ -584,7 +681,7 @@ export default function HomeScreen() {
                         <MaskedTextInput
                           mask="99/99/9999 99:99"
                           placeholder="Entrada"
-                          placeholderTextColor="#999"
+                          placeholderTextColor="rgba(255,255,255,0.65)"
                           value={formEdit.data_entrada}
                           onChangeText={(text) =>
                             setFormEdit({
@@ -620,7 +717,7 @@ export default function HomeScreen() {
                             <Ionicons
                               name="calendar-outline"
                               size={18}
-                              color="#007bff"
+                              color="#0a7ea4"
                             />
 
                           )}
@@ -641,7 +738,7 @@ export default function HomeScreen() {
                         <MaskedTextInput
                           mask="99/99/9999 99:99"
                           placeholder="Saída"
-                          placeholderTextColor="#999"
+                          placeholderTextColor="rgba(255,255,255,0.65)"
                           value={formEdit.data_saida}
                           onChangeText={(text) =>
                             setFormEdit({
@@ -677,7 +774,7 @@ export default function HomeScreen() {
                             <Ionicons
                               name="calendar-outline"
                               size={18}
-                              color="#007bff"
+                              color="#0a7ea4"
                             />
 
                           )}
@@ -853,9 +950,12 @@ export default function HomeScreen() {
 
                 ))
               ) : (
-                <Text style={{ color: '#fff', padding: 10 }}>
-                  Nenhum registro encontrado
-                </Text>
+                <View style={{ paddingVertical: 24, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="search-outline" size={32} color="rgba(211,242,255,0.4)" style={{ marginBottom: 8 }} />
+                  <Text style={{ color: '#d3f2ff', textAlign: 'center', fontSize: 14 }}>
+                    Nenhum registro encontrado
+                  </Text>
+                </View>
               )}
 
             </View>
@@ -868,6 +968,22 @@ export default function HomeScreen() {
 
 
 
+
+      {showFiltroDatePicker && Platform.OS !== 'web' && (
+        <DateTimePicker
+          value={filterDateValue}
+          mode="date"
+          display={Platform.OS === 'android' ? 'calendar' : 'spinner'}
+          onChange={(event, selectedDate) => {
+            if (Platform.OS === 'android') setShowFiltroDatePicker(false);
+            if (selectedDate) {
+              const s = formatDateOnly(selectedDate);
+              setFiltroData(s);
+              fetchRegistros(s, filtroLocal);
+            }
+          }}
+        />
+      )}
 
       {/* Modal para selecionar data */}
       {modalVisible && (
@@ -896,20 +1012,20 @@ export default function HomeScreen() {
                 marginTop: 15
               }}>
 
-                <TouchableOpacity
-                  onPress={salvarData}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 6,
-                    backgroundColor: '#007bff',
-                    padding: 10,
-                    borderRadius: 6
-                  }}
-                >
-                  <Ionicons name="save-outline" size={20} color="#fff" />
-                  <Text style={{ color: '#fff' }}>Salvar</Text>
-                </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={salvarData}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            gap: 6,
+                            backgroundColor: '#0a7ea4',
+                            padding: 10,
+                            borderRadius: 6
+                          }}
+                        >
+                          <Ionicons name="save-outline" size={20} color="#fff" />
+                          <Text style={{ color: '#fff' }}>Salvar</Text>
+                        </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => setModalVisible(false)}
@@ -938,25 +1054,25 @@ export default function HomeScreen() {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 10, marginTop: 40, backgroundColor: '#000' },
+  container: { flex: 1, padding: 10, marginTop: 40, backgroundColor: '#071926' },
   logoutContainer: { marginHorizontal: 1, marginBottom: 5 },
   buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
   button: { flex: 1, marginHorizontal: 1 },
   iconOnlyButton: {
-    backgroundColor: '#2196F3',
-    padding: 4,
-    borderRadius: 2,
+    backgroundColor: '#0a7ea4',
+    padding: 6,
+    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buttonIcon: { width: 80, height: 25, backgroundColor: '#007bff', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
-  header: { flexDirection: 'row', backgroundColor: '#ddd', paddingVertical: 5 },
-  headerCell: { width: 125, height: 15, fontWeight: 'bold', fontSize: 12, paddingHorizontal: 10, borderRightWidth: 2, borderRightColor: '#222' },
+  buttonIcon: { width: 80, height: 25, backgroundColor: '#0a7ea4', borderRadius: 5, justifyContent: 'center', alignItems: 'center', marginLeft: 65 },
+  header: { flexDirection: 'row', backgroundColor: 'rgba(10,126,164,0.08)', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(10,126,164,0.22)' },
+  headerCell: { width: 125, height: 15, fontWeight: '700', fontSize: 12, paddingHorizontal: 10, borderRightWidth: 2, borderRightColor: 'rgba(10,126,164,0.12)' },
   row: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
-    minHeight: 34, // 👈 antes estava maior (ou implícito)
+    borderBottomColor: 'rgba(10,126,164,0.12)',
+    minHeight: 36,
     alignItems: 'center',
   },
   cell: { width: 152, fontSize: 12, paddingHorizontal: 10, borderRightWidth: 1, color: '#fff', borderRightColor: '#222', },
@@ -977,12 +1093,16 @@ const styles = StyleSheet.create({
   },
   tooltipText: { color: '#fff', fontSize: 12 },
   input: {
+    minHeight: 54,
+    backgroundColor: '#0b304c',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#ccc',
-    marginTop: 0,
-    padding: 8,
-    backgroundColor: '#fff',
-    borderRadius: 1,
+    borderColor: 'rgba(10,126,164,0.30)',
+    justifyContent: 'center',
+    color: '#eef8ff',
   },
   iconButton: {
     padding: 10,
@@ -1015,48 +1135,95 @@ const styles = StyleSheet.create({
   },
 
   botaoBuscar: {
-    height: 40, // 👉 mesma altura dos inputs
-    minWidth: 50, // 👉 botão menor
-    backgroundColor: '#007bff',
-    borderRadius: 5,
+    height: 44,
+    minWidth: 50,
+    backgroundColor: '#0a7ea4',
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
   },
 
   textoBotao: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   tableCell: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
     borderRightWidth: 0.5,
-    borderRightColor: '#333',
+    borderRightColor: 'rgba(10,126,164,0.12)',
     minHeight: 36,
     flexWrap: 'wrap',
   },
   cellText: {
-    color: '#fff',
+    color: '#eef8ff',
     textAlign: 'center',
     flexWrap: 'wrap',
     width: '100%',
 
   },
   tableInput: {
-    height: 32,
-    fontSize: 11,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    backgroundColor: '#fff',
-    borderRadius: 4,
+    height: 36,
+    fontSize: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#0b304c',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(10,126,164,0.30)',
+    color: '#eef8ff',
     width: '95%',
     flexWrap: 'wrap',
   },
   headerText: {
-    color: '#000',
+    color: '#d3f2ff',
     textAlign: 'center',
+    fontWeight: '700',
 
   },
+
+  dateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+
+  dateField: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 0,
+  },
+
+  dateInput: {
+    flex: 1,
+    marginBottom: 0,
+    marginRight: 4,
+    minWidth: 0,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+
+  dateInputLeft: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+
+  dateButtonRight: {
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  },
+
+  dateButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#0a7ea4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
 });

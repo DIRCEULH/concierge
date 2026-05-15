@@ -192,7 +192,7 @@ export default function CadastroVehicleScreen() {
 
                 <TextInput
                     placeholder="CPF ou CNPJ"
-                    placeholderTextColor="#000"
+                    placeholderTextColor="rgba(255,255,255,0.65)"
                     value={form.cpf_cnpj}
                     onChangeText={(text) => {
                         const formatted = formatCpfCnpj(text);
@@ -204,7 +204,7 @@ export default function CadastroVehicleScreen() {
 
                 <TextInput
                     placeholder="Placa"
-                    placeholderTextColor="#000"
+                    placeholderTextColor="rgba(255,255,255,0.65)"
                     value={form.placa}
                     onChangeText={(v) =>
                         handleChange('placa', v.toUpperCase())
@@ -215,7 +215,7 @@ export default function CadastroVehicleScreen() {
 
                 <TextInput
                     placeholder="Marca"
-                    placeholderTextColor="#000"
+                    placeholderTextColor="rgba(255,255,255,0.65)"
                     value={form.marca}
                     onChangeText={(v) => handleChange('marca', v)}
                     style={styles.input}
@@ -223,7 +223,7 @@ export default function CadastroVehicleScreen() {
 
                 <TextInput
                     placeholder="Modelo"
-                    placeholderTextColor="#000"
+                    placeholderTextColor="rgba(255,255,255,0.65)"
                     value={form.modelo}
                     onChangeText={(v) => handleChange('modelo', v)}
                     style={styles.input}
@@ -235,7 +235,7 @@ export default function CadastroVehicleScreen() {
                         onValueChange={(value) =>
                             handleChange('cor', value)
                         }
-                        dropdownIconColor="#000"
+                        dropdownIconColor="#eef8ff"
                         style={styles.picker}
                     >
 
@@ -356,7 +356,7 @@ export default function CadastroVehicleScreen() {
 
                 <TextInput
                     placeholder="Pesquisar por CPF/CNPJ"
-                    placeholderTextColor="#000"
+                    placeholderTextColor="rgba(255,255,255,0.65)"
                     value={searchCpfCnpj}
                     onChangeText={(text) => setSearchCpfCnpj(text)}
                     style={styles.input}
@@ -364,9 +364,9 @@ export default function CadastroVehicleScreen() {
 
                 <View style={styles.tableContainer}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <View style={{ minWidth: 700 }}>
+                        <View style={{ minWidth: 480 }}>
                             <View style={[styles.tableRow, styles.tableHeaderRow]}>
-                                <Text style={[styles.tableHeaderText, { flex: 2 }]}>CPF/CNPJ</Text>
+                                <Text style={[styles.tableHeaderText, { flex: 3 }]}>CPF/CNPJ</Text>
                                 <Text style={[styles.tableHeaderText, { flex: 1.2 }]}>Placa</Text>
                                 <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Modelo</Text>
                                 <Text style={[styles.tableHeaderText, { flex: 1.5 }]}>Marca</Text>
@@ -382,11 +382,11 @@ export default function CadastroVehicleScreen() {
                                             styles.tableRow,
                                             {
                                                 backgroundColor:
-                                                    index % 2 === 0 ? '#111' : '#1a1a1a',
+                                                    index % 2 === 0 ? '#0a1420' : '#0f1b2d',
                                             },
                                         ]}
                                     >
-                                        <Text style={[styles.tableCell, { flex: 2 }]}>{item.cpf_cnpj ?? ''}</Text>
+                                        <Text style={[styles.tableCell, { flex: 3 }]}>{item.cpf_cnpj ?? ''}</Text>
                                         <Text style={[styles.tableCell, { flex: 1.2 }]}>{item.placa ?? ''}</Text>
                                         <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.modelo ?? ''}</Text>
                                         <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.marca ?? ''}</Text>
@@ -397,6 +397,7 @@ export default function CadastroVehicleScreen() {
 
                                 {registrosFiltrados.length === 0 && (
                                     <View style={styles.emptyRow}>
+                                        <Ionicons name="search-outline" size={32} color="rgba(211,242,255,0.4)" style={{ marginBottom: 8 }} />
                                         <Text style={styles.emptyText}>
                                             Nenhum veículo encontrado.
                                         </Text>
@@ -413,90 +414,204 @@ export default function CadastroVehicleScreen() {
 }
 
 const styles = StyleSheet.create({
-
     scroll: {
         flexGrow: 1,
         alignItems: 'center',
-        paddingVertical: 20,
-        backgroundColor: '#000',
+        paddingVertical: 24,
+        backgroundColor: '#071926',
     },
 
     formContainer: {
         width: '90%',
-        maxWidth: 400,
+        maxWidth: 480,
+        padding: 24,
+        borderRadius: 28,
+        backgroundColor: 'rgba(10,126,164,0.10)',
+        borderWidth: 1,
+        borderColor: 'rgba(10,126,164,0.22)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 15 },
+        shadowOpacity: 0.22,
+        shadowRadius: 30,
+        elevation: 12,
     },
 
     title: {
-        fontSize: 20,
-        color: '#fff',
-        marginBottom: 15,
+        fontSize: 24,
+        color: '#d3f2ff',
+        marginBottom: 20,
         textAlign: 'center',
-        fontWeight: 'bold',
+        fontWeight: '700',
+        letterSpacing: 0.4,
     },
 
     input: {
-        backgroundColor: '#fff',
-        padding: 12,
-        marginBottom: 10,
-        borderRadius: 6,
-        color: '#000',
+        minHeight: 54,
+        backgroundColor: '#0b304c',
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        marginBottom: 12,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(10,126,164,0.30)',
+        justifyContent: 'center',
+    },
+
+    inputText: {
+        color: '#eef8ff',
+        fontSize: 16,
+    },
+
+    placeholderText: {
+        color: 'rgba(226,245,255,0.7)',
+    },
+
+    dropdown: {
+        backgroundColor: '#0b304c',
+        borderWidth: 1,
+        borderColor: 'rgba(10,126,164,0.30)',
+        borderRadius: 14,
+        maxHeight: 180,
+        marginBottom: 12,
+    },
+
+    item: {
+        padding: 14,
+        borderBottomWidth: 1,
+        borderColor: 'rgba(10,126,164,0.18)',
+        color: '#eef8ff',
+    },
+
+    inputDisabled: {
+        backgroundColor: '#12354a',
+    },
+
+    buttonText: {
+        color: '#fff',
+        fontWeight: '700',
+        marginLeft: 6,
     },
 
     buttonContainer: {
         flexDirection: 'row',
-        gap: 10,
+        flexWrap: 'wrap',
         justifyContent: 'center',
-        marginTop: 10,
+        marginTop: 16,
     },
 
     button: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        backgroundColor: '#007bff',
-        padding: 12,
-        borderRadius: 6,
-    },
-
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
+        justifyContent: 'center',
+        backgroundColor: '#0a7ea4',
+        paddingVertical: 14,
+        paddingHorizontal: 18,
+        borderRadius: 16,
+        marginRight: 10,
+        marginBottom: 10,
+        minWidth: 100,
     },
 
     pickerContainer: {
-        backgroundColor: '#fff',
-        borderRadius: 6,
-        marginBottom: 10,
-        height: 50,
-        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(10,126,164,0.30)',
+        borderRadius: 16,
+        marginBottom: 12,
         overflow: 'hidden',
+        backgroundColor: '#0b304c',
     },
 
     picker: {
-        color: '#000',
-        height: 50,
         width: '100%',
+        height: 54,
+        color: '#eef8ff',
+        backgroundColor: '#0b304c',
+    },
+
+    dateRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginBottom: 12,
+    },
+
+    dateField: {
+        flex: 1,
+        minWidth: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+
+    dateInput: {
+        flex: 1,
+        marginBottom: 0,
+        marginRight: 4,
+        minWidth: 0,
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+    },
+
+    dateInputLeft: {
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+    },
+
+    dateButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: '#0a7ea4',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    dateButtonRight: {
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
+    },
+
+    hiddenInput: {
+        position: 'absolute',
+        left: -9999,
+        width: 0,
+        height: 0,
+        opacity: 0,
+    },
+
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginBottom: 12,
+    },
+
+    field: {
+        flex: 1,
+        minWidth: 150,
     },
 
     tableSection: {
         width: '90%',
-        maxWidth: 1000,
+        maxWidth: 480,
         marginTop: 30,
     },
 
     sectionTitle: {
         fontSize: 18,
-        color: '#fff',
+        color: '#d3f2ff',
         marginBottom: 10,
-        fontWeight: 'bold',
+        fontWeight: '700',
         textAlign: 'center',
     },
 
     tableContainer: {
-        backgroundColor: '#111',
-        borderRadius: 8,
-        padding: 10,
+        backgroundColor: 'rgba(10,126,164,0.04)',
+        borderRadius: 20,
+        padding: 12,
         width: '100%',
+        borderWidth: 1,
+        borderColor: 'rgba(10,126,164,0.12)'
     },
 
     tableBody: {
@@ -507,38 +622,38 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         minHeight: 42,
-        paddingHorizontal: 4,
+        paddingHorizontal: 6,
     },
 
     tableHeaderRow: {
         borderBottomWidth: 1,
-        borderBottomColor: '#333',
-        marginBottom: 6,
+        borderBottomColor: 'rgba(10,126,164,0.22)',
+        marginBottom: 8,
     },
 
     tableCell: {
-        color: '#fff',
-        paddingVertical: 8,
-        paddingHorizontal: 6,
+        color: '#eef8ff',
+        paddingVertical: 10,
+        paddingHorizontal: 8,
         textAlign: 'left',
     },
 
     tableHeaderText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        paddingVertical: 8,
-        paddingHorizontal: 6,
+        color: '#d3f2ff',
+        fontWeight: '700',
+        paddingVertical: 10,
+        paddingHorizontal: 8,
         textAlign: 'left',
     },
 
     emptyRow: {
-        paddingVertical: 20,
+        paddingVertical: 24,
         alignItems: 'center',
         justifyContent: 'center',
     },
 
     emptyText: {
-        color: '#ccc',
+        color: '#d3f2ff',
         textAlign: 'center',
     },
 
